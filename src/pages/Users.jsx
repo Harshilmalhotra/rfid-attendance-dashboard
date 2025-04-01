@@ -151,11 +151,20 @@ const Users = () => {
     handleCloseDialog();
   };
 
-  const deleteUser = async (id) => {
-    await supabase.from("users").delete().eq("id", id);
-    fetchUsers();
+  const deleteUser = async (rfid_uid) => {
+    console.log("Deleting user with RFID UID:", rfid_uid); // Debugging
+    try {
+      const { error } = await supabase.from("users").delete().eq("rfid_uid", rfid_uid);
+      if (error) {
+        console.error("Error deleting user:", error.message);
+        return;
+      }
+      console.log("User deleted successfully");
+      fetchUsers(); // Refresh the user list
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+    }
   };
-
   return (
     <Box sx={{ display: "flex", backgroundColor: "#f5f6fa", minHeight: "100vh" }}>
       <Sidebar />
@@ -190,9 +199,9 @@ const Users = () => {
                 >
                   Edit
                 </Button>
-                <Button variant="outlined" color="secondary" onClick={() => deleteUser(user.id)}>
-                  Delete
-                </Button>
+                <Button variant="outlined" color="secondary" onClick={() => deleteUser(user.rfid_uid)}>
+  Delete
+</Button>
               </Box>
             </ListItem>
           ))}
