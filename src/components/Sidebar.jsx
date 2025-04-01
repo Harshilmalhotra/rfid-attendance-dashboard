@@ -8,12 +8,12 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
   useMediaQuery,
 } from "@mui/material";
 import { Brightness4, Brightness7, Logout, Home, People, Person, Dashboard as DashboardIcon } from "@mui/icons-material";
 import { useColorMode } from "../context/ColorModeContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const Sidebar = () => {
   const { mode, toggleColorMode } = useColorMode();
@@ -23,15 +23,24 @@ const Sidebar = () => {
   const [open, setOpen] = useState(!isMobile);
 
   const pages = [
-    { title: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" }, // Added Dashboard
+    { title: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { title: "Attendance Log", icon: <Home />, path: "/attendance" },
     { title: "User Management", icon: <People />, path: "/users" },
     { title: "Profile", icon: <Person />, path: "/profile" },
   ];
 
-  const handleLogout = () => {
-    // Add your logout logic here
-    console.log("Logout clicked");
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error during logout:", error.message);
+        return;
+      }
+      console.log("User logged out successfully");
+      navigate("/"); // Redirect to the login page or home page
+    } catch (err) {
+      console.error("Unexpected error during logout:", err.message);
+    }
   };
 
   return (
