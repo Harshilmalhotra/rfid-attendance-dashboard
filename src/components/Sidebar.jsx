@@ -15,6 +15,7 @@ import { useColorMode } from "../context/ColorModeContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
+
 const Sidebar = () => {
   const { mode, toggleColorMode } = useColorMode();
   const navigate = useNavigate();

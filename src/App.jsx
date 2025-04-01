@@ -7,6 +7,7 @@ import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import NotFound from "./pages/NotFound";
 
 function App() {
   const [session, setSession] = useState(null);
@@ -32,7 +33,8 @@ function App() {
             <Route path="/attendance" element={<AttendanceLog />} />
             <Route path="/users" element={<Users />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+           
+            <Route path="*" element={<NotFound />} />
           </>
         )}
       </Routes>
