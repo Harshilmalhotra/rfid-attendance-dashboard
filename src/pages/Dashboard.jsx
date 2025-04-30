@@ -1,80 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { fetchDashboardData } from "../utils/api";
-import { CircularProgress, Box, Container, Typography } from "@mui/material";
-import { BarChart, PieChart } from "@mui/x-charts";
-import Sidebar from "../components/Sidebar";
+import { useEffect, useState } from 'react';
+import { Grid, Card, CardContent, Typography, Box } from '@mui/material';
+import { motion } from 'framer-motion';
+import OccupantsCard from '../components/OccupantsCard';
+import LabUsageGauge from '../components/LabUsageGauge';
+import WeeklyOccupancyChart from '../components/WeeklyOccupancyChart';
+import RushHoursChart from '../components/RushHoursChart';
+// import TopUsersPieChart from '../components/TopUsersPieChart';
+// import HeatmapAttendance from '../components/HeatmapAttendance'; 
 
-const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchDashboardData();
-      setDashboardData(data);
-      setLoading(false);
-    };
-    loadData();
-  }, []);
-
-  if (loading) {
-    return <CircularProgress />;
-  }
-
-  if (!dashboardData) {
-    return <div>Error loading data</div>;
-  }
-
-  // Ensure data is not undefined
-  const labOccupancyData = dashboardData.labOccupancy || [];
-  const userSessionsData = dashboardData.userSessions || [];
-
+export default function Dashboard() {
   return (
-    <Box sx={{ display: "flex", backgroundColor: "#f5f6fa", minHeight: "100vh" }}>
-      <Sidebar />
-      <Container sx={{ padding: 3, flexGrow: 1, marginLeft: "240px" }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="p-8"
+    >
+      <Box sx={{ paddingLeft: { xs: 2, sm: 8, md: 10 }, paddingTop: 2 }}>
         <Typography variant="h4" gutterBottom>
-          Dashboard
+          Lab Analytics Dashboard
         </Typography>
 
-        <Typography variant="h5" gutterBottom>
-          Lab Occupancy
-        </Typography>
-        {labOccupancyData.length > 0 ? (
-          <BarChart
-            dataset={labOccupancyData}
-            xAxis={[{ scaleType: "band", dataKey: "hour" }]}
-            series={[{ dataKey: "count" }]}
-            width={500}
-            height={300}
-          />
-        ) : (
-          <Typography>No lab occupancy data available.</Typography>
-        )}
-
-        <Typography variant="h5" gutterBottom sx={{ marginTop: 4 }}>
-          User Sessions
-        </Typography>
-        {userSessionsData.length > 0 ? (
-          <PieChart
-            series={[
-              {
-                data: userSessionsData.map((user) => ({
-                  id: user.rfid_uid,
-                  value: user.total_time_spent,
-                  label: user.rfid_uid,
-                })),
-              },
-            ]}
-            width={400}
-            height={300}
-          />
-        ) : (
-          <Typography>No user session data available.</Typography>
-        )}
-      </Container>
-    </Box>
+        {/* NEW MUI Grid way */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <OccupantsCard />
+          <LabUsageGauge />
+          <WeeklyOccupancyChart className="col-span-1 md:col-span-2" />
+          <RushHoursChart />
+          {/* <TopUsersPieChart /> */}
+        </div>
+      </Box>
+    </motion.div>
   );
-};
-
-export default Dashboard;
+}

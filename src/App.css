@@ -40,3 +40,16 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+
+/* Add to your global CSS or Tailwind config */
+.flex {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+}

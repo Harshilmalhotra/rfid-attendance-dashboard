@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { fetchAttendanceLogs } from "../utils/api.js";  // Import the fetch function from utils
 import {
   Box,
   Container,
@@ -32,7 +32,7 @@ const AttendanceLog = () => {
   const [date, setDate] = useState(dayjs());
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ column: "timestamp", order: "asc" }); // Default sorting by timestamp in ascending order
+  const [sortConfig, setSortConfig] = useState({ column: "created_at", order: "asc" });
 
   useEffect(() => {
     if (date) fetchLogs();
@@ -42,27 +42,21 @@ const AttendanceLog = () => {
     if (!date) return;
     setLoading(true);
     try {
-      const startOfDayUTC = dayjs(date).tz("Asia/Kolkata").startOf("day").utc().toISOString();
-      const endOfDayUTC = dayjs(date).tz("Asia/Kolkata").endOf("day").utc().toISOString();
+      const startOfDayUTC = dayjs(date).tz("Asia/Kolkata").startOf("day").toISOString();
+      const endOfDayUTC = dayjs(date).tz("Asia/Kolkata").endOf("day").toISOString();
 
-      const { data, error } = await supabase
-        .from("attendance")
-        .select("rfid_uid, timestamp, status, users(name)")
-        .gte("timestamp", startOfDayUTC)
-        .lt("timestamp", endOfDayUTC)
-        .order(sortConfig.column, { ascending: sortConfig.order === "asc" });
+      // Fetch the attendance logs from the API
+      const data = await fetchAttendanceLogs(startOfDayUTC, endOfDayUTC);
 
-      if (error) {
-        console.error("Error fetching logs:", error.message);
-        return;
-      }
-
+      // Process the data
       const logsIST = data.map((log) => ({
         ...log,
-        timestamp: dayjs.utc(log.timestamp).tz("Asia/Kolkata").format("DD/MM/YYYY HH:mm:ss"),
+        timestamp: dayjs(log.created_at).format("DD/MM/YYYY HH:mm:ss"),
       }));
 
       setLogs(logsIST);
+    } catch (error) {
+      console.error("Error fetching logs:", error.message);
     } finally {
       setLoading(false);
     }
@@ -71,13 +65,13 @@ const AttendanceLog = () => {
   const handleSort = (column) => {
     setSortConfig((prev) => ({
       column,
-      order: prev.column === column && prev.order === "asc" ? "desc" : "asc", // Toggle between ascending and descending
+      order: prev.column === column && prev.order === "asc" ? "desc" : "asc",
     }));
   };
 
   return (
     <Box sx={{ display: "flex", backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
-      <Sidebar />
+      {/* <Sidebar /> */}
       <Container
         sx={{
           padding: theme.spacing(3),

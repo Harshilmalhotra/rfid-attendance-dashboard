@@ -2,111 +2,192 @@ import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import {
-  Container,
   TextField,
   Button,
   Typography,
   CircularProgress,
   InputAdornment,
   IconButton,
+  Box,
+  Stack,
+  Divider,
+  Paper,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { motion } from "framer-motion";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [authMode, setAuthMode] = useState("signIn"); // "signIn" or "signUp"
   const navigate = useNavigate();
 
-  const handleSignIn = async () => {
+  const handleAuth = async () => {
     setLoading(true);
     setError("");
-    console.log("Signing in...");
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      console.log("Signed in:", data);
-      navigate("/attendance"); // Redirect after login
-    } catch (error) {
-      console.error("Sign-in error:", error.message);
-      setError(error.message);
+      if (authMode === "signIn") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate("/attendance");
+      } else {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        alert("Check your email to verify your account!");
+      }
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = async () => {
+  const handleMagicLink = async () => {
     setLoading(true);
     setError("");
-    console.log("Signing up...");
-
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signInWithOtp({ email });
       if (error) throw error;
-      console.log("Signed up:", data);
-      alert("Check your email to verify your account!");
-    } catch (error) {
-      console.error("Sign-up error:", error.message);
-      setError(error.message);
+      alert("Magic link sent to your email!");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+  const handleForgotPassword = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+      alert("Password reset link sent to your email!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   return (
-    <Container maxWidth="sm" style={{ textAlign: "center", marginTop: "2rem" }}>
-      <Typography variant="h4">ISD LAB Attendance App</Typography>
-      {error && <Typography color="error">{error}</Typography>}
-      <TextField
-        label="Email"
-        fullWidth
-        margin="normal"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <TextField
-        label="Password"
-        type={showPassword ? "text" : "password"} // Toggle between "text" and "password"
-        fullWidth
-        margin="normal"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={togglePasswordVisibility} edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={handleSignIn}
-        disabled={loading}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #dfe9f3 0%, #ffffff 100%)",
+        p: 2,
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
       >
-        {loading ? <CircularProgress size={24} /> : "Sign In"}
-      </Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        fullWidth
-        onClick={handleSignUp}
-        disabled={loading}
-      >
-        {loading ? <CircularProgress size={24} /> : "Sign Up"}
-      </Button>
-    </Container>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 3, width: "100%", maxWidth: 480 }}>
+          <Box textAlign="center" mb={3}>
+            <img
+              src="/logo.png"
+              alt="Lab Logo"
+              style={{ width: 80, height: 80, marginBottom: 12 }}
+            />
+            <Typography variant="h5" gutterBottom>
+              ISD LAB Attendance App
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {authMode === "signIn"
+                ? "Welcome back! Please sign in."
+                : "Create a new account to get started."}
+            </Typography>
+          </Box>
+
+          {error && (
+            <Typography color="error" mb={2} textAlign="center">
+              {error}
+            </Typography>
+          )}
+
+          <Stack spacing={2}>
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={togglePasswordVisibility}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Box textAlign="right">
+              <Button onClick={handleForgotPassword} size="small">
+                Forgot Password?
+              </Button>
+            </Box>
+
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleAuth}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : authMode === "signIn" ? "Sign In" : "Sign Up"}
+            </Button>
+
+            <Divider>or</Divider>
+
+            <Button
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              onClick={handleMagicLink}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : "Send Magic Link"}
+            </Button>
+
+            <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              {authMode === "signIn" ? (
+                <>
+                  Don’t have an account?{" "}
+                  <Button onClick={() => setAuthMode("signUp")} size="small">
+                    Create one
+                  </Button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <Button onClick={() => setAuthMode("signIn")} size="small">
+                    Sign in
+                  </Button>
+                </>
+              )}
+            </Typography>
+          </Stack>
+        </Paper>
+      </motion.div>
+    </Box>
   );
 };
 

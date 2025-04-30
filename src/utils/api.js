@@ -1,31 +1,30 @@
-import { supabase } from "../supabaseClient";
+// src\utils\api.js
+import axios from "axios";
 
-export async function fetchDashboardData() {
-  try {
-    console.log("Fetching dashboard data...");
+const API_URL = "http://localhost:3001"; // Make sure the API server is running on this port
 
-    // Fetch lab occupancy data
-    const { data: labOccupancy, error: labOccupancyError } = await supabase
-      .from("lab_occupancy")
-      .select("*");
+// Fetch current people present in the lab
+export const fetchCurrentOccupants = async () => {
+  const response = await axios.get(`${API_URL}/analytics/current`);
+  return response.data;
+};
 
-    if (labOccupancyError) throw labOccupancyError;
-    console.log("Lab Occupancy Data:", labOccupancy);
+// Fetch weekly lab occupancy data
+export const fetchWeeklyOccupancy = async () => {
+  const response = await axios.get(`${API_URL}/analytics/weekly`);
+  return response.data;
+};
 
-    // Fetch user session data
-    const { data: userSessions, error: userSessionsError } = await supabase
-      .from("user_sessions")
-      .select("*");
+// Fetch rush hours data
+export const fetchRushHours = async () => {
+  const response = await axios.get(`${API_URL}/analytics/rush-hours`);
+  return response.data;
+};
 
-    if (userSessionsError) throw userSessionsError;
-    console.log("User Sessions Data:", userSessions);
-
-    return {
-      labOccupancy: labOccupancy || [],
-      userSessions: userSessions || [],
-    };
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error.message);
-    return { labOccupancy: [], userSessions: [] };
-  }
-}
+// Fetch attendance logs for a specific date range
+export const fetchAttendanceLogs = async (startDate, endDate) => {
+  const response = await axios.get(
+    `${API_URL}/api/attendance?start_date=${startDate}&end_date=${endDate}`
+  );
+  return response.data;
+};
