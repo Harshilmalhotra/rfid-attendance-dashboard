@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { motion } from 'framer-motion';
-import { fetchRushHours } from '../utils/api'; // use shared API utils
+import { fetchRushHours } from '../utils/api'; 
 
 export default function RushHoursChart() {
   const [rushData, setRushData] = useState([]);

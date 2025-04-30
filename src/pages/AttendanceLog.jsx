@@ -20,7 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import Sidebar from "../components/Sidebar";
+
 import Chip from "@mui/material/Chip";
 
 dayjs.extend(utc);
@@ -71,12 +71,12 @@ const AttendanceLog = () => {
 
   return (
     <Box sx={{ display: "flex", backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
-      {/* <Sidebar /> */}
+
       <Container
         sx={{
           padding: theme.spacing(3),
           flexGrow: 1,
-          marginLeft: isDesktop ? "240px" : 0,
+          marginLeft: isDesktop ? "60px" : 0,
           transition: "margin-left 0.3s ease",
         }}
       >

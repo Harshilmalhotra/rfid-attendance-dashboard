@@ -18,7 +18,7 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-import Sidebar from "../components/Sidebar";
+
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -165,10 +165,17 @@ const Users = () => {
       console.error("Unexpected error:", err.message);
     }
   };
+
   return (
     <Box sx={{ display: "flex", backgroundColor: "#f5f6fa", minHeight: "100vh" }}>
-      <Sidebar />
-      <Container sx={{ padding: 3, flexGrow: 1, marginLeft: "240px" }}>
+      <Container
+  sx={{
+    padding: 3,
+    paddingLeft: { xs: 2, sm: 8 }, // Add padding from the left
+    flexGrow: 1,
+    maxWidth: { xs: "100%", sm: "90%", md: "80%" }, // Responsive width
+  }}
+>
         <Typography variant="h4" gutterBottom>
           Users
         </Typography>
@@ -200,8 +207,8 @@ const Users = () => {
                   Edit
                 </Button>
                 <Button variant="outlined" color="secondary" onClick={() => deleteUser(user.rfid_uid)}>
-  Delete
-</Button>
+                  Delete
+                </Button>
               </Box>
             </ListItem>
           ))}

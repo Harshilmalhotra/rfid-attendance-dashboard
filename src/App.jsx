@@ -18,6 +18,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Sidebar from "./components/Sidebar";
 import PageWrapper from "./components/PageWrapper";
+import Footer from "./components/Footer"; // Import Footer component
 
 // Auth route wrapper
 function PrivateRoute({ session, children }) {
@@ -35,29 +36,43 @@ function AnimatedRoutes({ session }) {
           path="/"
           element={<Navigate to={session ? "/dashboard" : "/auth"} replace />}
         />
-        <Route path="/auth" element={<Auth />} />
+        <Route
+          path="/auth"
+          element={
+            <div className="flex flex-col min-h-screen">
+              <div className="flex-grow">
+                <Auth />
+              </div>
+              <Footer /> {/* Add Footer here */}
+            </div>
+          }
+        />
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute session={session}>
-              <div className="flex">
+            <div className="flex flex-col min-h-screen">
+              <div className="flex-grow flex">
                 <Sidebar />
                 <PageWrapper>
                   <Dashboard />
                 </PageWrapper>
               </div>
-            </PrivateRoute>
+              <Footer /> {/* Add Footer here */}
+            </div>
           }
         />
         <Route
           path="/attendance"
           element={
             <PrivateRoute session={session}>
-              <div className="flex">
-                <Sidebar />
-                <PageWrapper>
-                  <AttendanceLog />
-                </PageWrapper>
+              <div className="flex flex-col min-h-screen">
+                <div className="flex-grow flex">
+                  <Sidebar />
+                  <PageWrapper>
+                    <AttendanceLog />
+                  </PageWrapper>
+                </div>
+                <Footer /> {/* Add Footer here */}
               </div>
             </PrivateRoute>
           }
@@ -66,11 +81,14 @@ function AnimatedRoutes({ session }) {
           path="/users"
           element={
             <PrivateRoute session={session}>
-              <div className="flex">
-                <Sidebar />
-                <PageWrapper>
-                  <Users />
-                </PageWrapper>
+              <div className="flex flex-col min-h-screen">
+                <div className="flex-grow flex">
+                  <Sidebar />
+                  <PageWrapper>
+                    <Users />
+                  </PageWrapper>
+                </div>
+                <Footer /> {/* Add Footer here */}
               </div>
             </PrivateRoute>
           }
@@ -79,11 +97,14 @@ function AnimatedRoutes({ session }) {
           path="/profile"
           element={
             <PrivateRoute session={session}>
-              <div className="flex">
-                <Sidebar />
-                <PageWrapper>
-                  <Profile />
-                </PageWrapper>
+              <div className="flex flex-col min-h-screen">
+                <div className="flex-grow flex">
+                  <Sidebar />
+                  <PageWrapper>
+                    <Profile />
+                  </PageWrapper>
+                </div>
+                <Footer /> {/* Add Footer here */}
               </div>
             </PrivateRoute>
           }
@@ -91,9 +112,14 @@ function AnimatedRoutes({ session }) {
         <Route
           path="*"
           element={
-            <PageWrapper>
-              <NotFound />
-            </PageWrapper>
+            <div className="flex flex-col min-h-screen">
+              <div className="flex-grow">
+                <PageWrapper>
+                  <NotFound />
+                </PageWrapper>
+              </div>
+              <Footer /> {/* Add Footer here */}
+            </div>
           }
         />
       </Routes>

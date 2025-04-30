@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Drawer,
@@ -33,7 +33,10 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 600px)");
-  const [open, setOpen] = useState(!isMobile);
+  const sidebarRef = useRef(null);
+
+  // Sidebar collapsed by default on desktop
+  const [open, setOpen] = useState(isMobile);
 
   const pages = [
     { title: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
@@ -42,32 +45,35 @@ const Sidebar = () => {
     { title: "Profile", icon: <Person />, path: "/profile" },
   ];
 
+  // Handle outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && !isMobile) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMobile]);
+
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error during logout:", error.message);
-        return;
-      }
-      console.log("User logged out successfully");
-      navigate("/"); // Redirect to the login page or home page
+      if (error) return console.error("Logout error:", error.message);
+      navigate("/");
     } catch (err) {
-      console.error("Unexpected error during logout:", err.message);
+      console.error("Unexpected logout error:", err.message);
     }
   };
 
   return (
     <>
-      {/* AppBar for Mobile View */}
+      {/* AppBar for Mobile */}
       {isMobile && (
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
           <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={() => setOpen(true)}
-            >
+            <IconButton edge="start" color="inherit" onClick={() => setOpen(true)}>
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -80,7 +86,7 @@ const Sidebar = () => {
         </AppBar>
       )}
 
-      {/* Sidebar Drawer */}
+      {/* Drawer */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={open}
@@ -92,18 +98,19 @@ const Sidebar = () => {
             transition: "width 0.3s",
             backgroundColor: mode === "dark" ? "#0c1017" : "#f5f6fa",
             color: mode === "dark" ? "#fff" : "#000",
+            borderRight: 0,
           },
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          {/* Toggle Button */}
-          <Box sx={{ display: "flex", justifyContent: open ? "flex-end" : "center", padding: 2 }}>
+        <Box ref={sidebarRef} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+          {/* Collapse/Expand Toggle */}
+          <Box sx={{ display: "flex", justifyContent: open ? "flex-end" : "center", p: 2 }}>
             <IconButton onClick={() => setOpen(!open)} color="inherit">
               <MenuIcon />
             </IconButton>
           </Box>
 
-          {/* Navigation Links */}
+          {/* Nav Items */}
           <List>
             {pages.map((page) => (
               <ListItem key={page.title} disablePadding>
@@ -111,11 +118,16 @@ const Sidebar = () => {
                   <ListItemButton
                     onClick={() => {
                       navigate(page.path);
-                      if (isMobile) setOpen(false); // Close sidebar on mobile after navigation
+                      if (isMobile) setOpen(false);
                     }}
                     sx={{
                       justifyContent: open ? "flex-start" : "center",
-                      backgroundColor: location.pathname === page.path ? (mode === "dark" ? "#fff" : "#e0e0e0") : "transparent",
+                      backgroundColor:
+                        location.pathname === page.path
+                          ? mode === "dark"
+                            ? "#fff"
+                            : "#e0e0e0"
+                          : "transparent",
                       color: location.pathname === page.path ? "#000" : "#7a8395",
                       "&:hover": {
                         backgroundColor: mode === "dark" ? "#1a1d23" : "#f0f0f0",
@@ -137,7 +149,24 @@ const Sidebar = () => {
             ))}
           </List>
 
-          {/* Logout Button */}
+          {/* Theme Toggle */}
+          <Box sx={{ padding: 2 }}>
+            <Tooltip title={open ? "" : "Toggle Theme"} placement="right">
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={toggleColorMode}
+                  sx={{ justifyContent: open ? "flex-start" : "center" }}
+                >
+                  <ListItemIcon sx={{ minWidth: open ? 40 : "auto", color: "#7a8395" }}>
+                    {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                  </ListItemIcon>
+                  {open && <ListItemText primary="Toggle Theme" />}
+                </ListItemButton>
+              </ListItem>
+            </Tooltip>
+          </Box>
+
+          {/* Logout */}
           <Box sx={{ marginTop: "auto", padding: 2 }}>
             <Tooltip title={open ? "" : "Logout"} placement="right">
               <ListItem disablePadding>
@@ -151,7 +180,7 @@ const Sidebar = () => {
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ color: "#7a8395", minWidth: open ? 40 : "auto" }}>
+                  <ListItemIcon sx={{ minWidth: open ? 40 : "auto", color: "#7a8395" }}>
                     <Logout />
                   </ListItemIcon>
                   {open && <ListItemText primary="Logout" />}
