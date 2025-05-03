@@ -32,3 +32,5 @@ dist-ssr
 *.local.*
 *.local.*.local
 .env
+
+Arduino/rfid_attendance/secrets.h
