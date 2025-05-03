@@ -22,7 +22,7 @@ export default function OccupantsCard() {
   return (
     <motion.div whileHover={{ scale: 1.02 }}>
       <Card>
-        <CardContent>
+        <CardContent style={{ backgroundColor: '#f4f6fa' }}>
           <Typography variant="h6" gutterBottom>
             Currently Inside Lab ({occupants.length})
           </Typography>

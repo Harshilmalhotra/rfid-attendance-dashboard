@@ -32,7 +32,7 @@ const Auth = () => {
       if (authMode === "signIn") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate("/attendance");
+        navigate("/dashboard");
       } else {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
