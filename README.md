@@ -53,7 +53,7 @@ Steps:
 
 1. Rename secrets_example.h → secrets.h
 2. Fill in your Wi-Fi credentials and Supabase API details
-3. Upload rfid_attendance.ino to your Arduino Mega / ESP32
+3. Upload rfid_attendance.ino to your ESP32 or 8266
 
 ### 6. 🧪 Run the frontend
 ```
