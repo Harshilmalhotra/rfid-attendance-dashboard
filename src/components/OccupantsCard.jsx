@@ -55,33 +55,34 @@ export default function OccupantsCard() {
             </Typography>
           </Box>
 
-          <Box sx={{ p: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>RFID UID</TableCell>
-                  <TableCell>Time In</TableCell>
-                  <TableCell>Time Spent</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {occupants.map((user, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{user.name || 'Unknown'}</TableCell>
-                    <TableCell>{user.rfid_uid}</TableCell>
-                    <TableCell>
-                      {new Date(user.time_in).toLocaleTimeString('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </TableCell>
-                    <TableCell>{formatTimeSpent(user.time_in)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
+          <Box sx={{ overflowX: 'auto', width: '100%' }}>
+  <Table size="small">
+    <TableHead>
+      <TableRow>
+        <TableCell>Name</TableCell>
+        <TableCell>RFID UID</TableCell>
+        <TableCell>Time In</TableCell>
+        <TableCell>Time Spent</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {occupants.map((user, idx) => (
+        <TableRow key={idx}>
+          <TableCell>{user.name || 'Unknown'}</TableCell>
+          <TableCell>{user.rfid_uid}</TableCell>
+          <TableCell>
+            {new Date(user.time_in).toLocaleTimeString('en-IN', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </TableCell>
+          <TableCell>{formatTimeSpent(user.time_in)}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</Box>
+
         </CardContent>
       </Card>
 

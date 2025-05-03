@@ -112,7 +112,7 @@ const AttendanceLog = () => {
                     <tr>
                       <td>${log.users?.name || "Unknown"}</td>
                       <td>${log.rfid_uid}</td>
-                      <td>${log.check}</td>
+                      <td>${log.Check}</td>
                       <td>${log.timestamp}</td>
                     </tr>
                   `
@@ -195,9 +195,9 @@ const AttendanceLog = () => {
 
                 <TableCell sx={{ fontWeight: "bold", backgroundColor: theme.palette.primary.light, color: theme.palette.primary.contrastText }}>
                   <TableSortLabel
-                    active={sortConfig.column === "check"}
-                    direction={sortConfig.column === "check" ? sortConfig.order : "asc"}
-                    onClick={() => handleSort("check")}
+                    active={sortConfig.column === "Check"}
+                    direction={sortConfig.column === "Check" ? sortConfig.order : "asc"}
+                    onClick={() => handleSort("Check")}
                   >
                     Check
                   </TableSortLabel>
@@ -230,11 +230,11 @@ const AttendanceLog = () => {
                     <TableCell>
                       <Chip
                         size="small"
-                        color={log.check === "IN" ? "success" : "error"}
-                        label={log.check}
+                        color={log.Check === "IN" ? "success" : "error"}
+                        label={log.Check}
                         sx={{
                           fontWeight: "bold",
-                          color: log.check === "IN" ? theme.palette.success.contrastText : theme.palette.error.contrastText,
+                          color: log.Check === "IN" ? theme.palette.success.contrastText : theme.palette.error.contrastText,
                         }}
                       />
                     </TableCell>
