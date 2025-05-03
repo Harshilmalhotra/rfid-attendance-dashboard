@@ -17,6 +17,7 @@ import {
   Select,
   InputLabel,
   FormControl,
+  useTheme,
 } from "@mui/material";
 
 import dayjs from "dayjs";
@@ -27,6 +28,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const Users = () => {
+  const theme = useTheme(); // Access the theme
   const [users, setUsers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -167,16 +169,15 @@ const Users = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", backgroundColor: "#f5f6fa", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", backgroundColor: theme.palette.background.default, minHeight: "100vh" }}>
       <Container
-  sx={{
-    padding: 3,
-    paddingLeft: { xs: 2, sm: 8 }, // Add padding from the left
-    flexGrow: 1,
-    maxWidth: { xs: "100%", sm: "90%", md: "80%" }, // Responsive width
-  }}
->
-        <Typography variant="h4" gutterBottom>
+        sx={{
+          padding: theme.spacing(3),
+          flexGrow: 1,
+          maxWidth: { xs: "100%", sm: "90%", md: "80%" }, // Responsive width
+        }}
+      >
+        <Typography variant="h4" gutterBottom sx={{ color: theme.palette.primary.main }}>
           Users
         </Typography>
         <Button variant="contained" color="primary" onClick={() => handleOpenDialog()}>
@@ -190,7 +191,7 @@ const Users = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                borderBottom: "1px solid #e0e0e0",
+                borderBottom: `1px solid ${theme.palette.divider}`,
               }}
             >
               <ListItemText
@@ -216,7 +217,9 @@ const Users = () => {
 
         {/* Dialog for Create/Edit User */}
         <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>{editingUser ? "Edit User" : "Add User"}</DialogTitle>
+          <DialogTitle sx={{ color: theme.palette.primary.main }}>
+            {editingUser ? "Edit User" : "Add User"}
+          </DialogTitle>
           <DialogContent>
             <TextField
               autoFocus

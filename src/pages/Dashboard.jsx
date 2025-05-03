@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import {
   Typography,
   Box,
@@ -29,13 +29,13 @@ export default function Dashboard() {
         backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
         display: "flex",
+        padding: theme.spacing(3),
       }}
     >
       <Container
         sx={{
-          padding: theme.spacing(3),
           flexGrow: 1,
-          marginLeft: isDesktop ? "60px" : 0, // consistent left margin with AttendanceLog
+          marginLeft: isDesktop ? "60px" : 0,
           transition: "margin-left 0.3s ease",
         }}
       >
@@ -47,51 +47,85 @@ export default function Dashboard() {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ color: theme.palette.primary.main, pb: 2 }}
+            sx={{ color: theme.palette.primary.main, pb: 3 }}
           >
             Lab Analytics Dashboard
           </Typography>
 
+          {/* OccupantsCard - full width */}
+          {loading ? (
+            <Skeleton variant="rectangular" height={250} sx={{ mb: 4 }} />
+          ) : (
+            <Box
+              sx={{
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 3,
+                backgroundColor: theme.palette.background.paper,
+                mb: 4,
+              }}
+            >
+              <OccupantsCard />
+            </Box>
+          )}
+
+          {/* LabUsageGauge + RushHoursChart - side-by-side on desktop */}
           <Box
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full"
-            sx={{ maxWidth: "100%" }}
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 4,
+              mb: 4,
+            }}
           >
             {loading ? (
-              <Skeleton variant="rectangular" height={250} />
+              <Skeleton variant="rectangular" height={250} sx={{ flex: 1 }} />
             ) : (
-              <Box className="rounded-xl shadow-md p-4 bg-white dark:bg-gray-900">
-                <OccupantsCard />
-              </Box>
-            )}
-
-            {loading ? (
-              <Skeleton variant="rectangular" height={250} />
-            ) : (
-              <Box className="rounded-xl shadow-md p-4 bg-white dark:bg-gray-900">
+              <Box
+                sx={{
+                  flex: 1,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  p: 3,
+                  backgroundColor: theme.palette.background.paper,
+                }}
+              >
                 <LabUsageGauge />
               </Box>
             )}
 
             {loading ? (
-              <Skeleton
-                variant="rectangular"
-                height={300}
-                className="col-span-1 md:col-span-2"
-              />
+              <Skeleton variant="rectangular" height={250} sx={{ flex: 1 }} />
             ) : (
-              <Box className="rounded-xl shadow-md p-4 bg-white dark:bg-gray-900 col-span-1 md:col-span-2">
-                <WeeklyOccupancyChart />
-              </Box>
-            )}
-
-            {loading ? (
-              <Skeleton variant="rectangular" height={250} />
-            ) : (
-              <Box className="rounded-xl shadow-md p-4 bg-white dark:bg-gray-900">
+              <Box
+                sx={{
+                  flex: 1,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  p: 3,
+                  backgroundColor: theme.palette.background.paper,
+                }}
+              >
                 <RushHoursChart />
               </Box>
             )}
           </Box>
+
+          {/* WeeklyOccupancyChart - full width */}
+          {loading ? (
+            <Skeleton variant="rectangular" height={300} />
+          ) : (
+            <Box
+              sx={{
+                borderRadius: 2,
+                boxShadow: 3,
+                p: 3,
+                backgroundColor: theme.palette.background.paper,
+              }}
+            >
+              <WeeklyOccupancyChart />
+            </Box>
+          )}
         </motion.div>
       </Container>
     </Box>
