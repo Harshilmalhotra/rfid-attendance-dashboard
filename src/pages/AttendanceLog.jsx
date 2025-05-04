@@ -69,33 +69,77 @@ const AttendanceLog = () => {
       .then((res) => res.json())
       .then((data) => data.ip);
     const now = new Date().toLocaleString("en-IN");
-
+  
     const printContent = `
       <html>
         <head>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h1, h3 { text-align: center; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            img { max-height: 60px; margin-bottom: 10px; }
-            .meta { margin-top: 20px; font-size: 14px; }
+            @page {
+              size: A4;
+              margin: 20mm;
+            }
+            body {
+              font-family: 'Roboto', sans-serif;
+              padding: 10px 20px;
+              margin: 0;
+              line-height: 1.6;
+            }
+            h1, h3 {
+              text-align: center;
+              margin: 0;
+            }
+            h1 {
+              margin-top: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 15px;
+              font-size: 14px;
+            }
+            th, td {
+              border: 1px solid #000;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+            .meta {
+              margin-top: 10px;
+              font-size: 12px;
+              color: #333;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 20px;
+              font-size: 12px;
+              color: #555;
+              position: absolute;
+              bottom: 20px;
+              left: 0;
+              right: 0;
+            }
+            .footer p {
+              margin: 5px 0;
+            }
           </style>
+          <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
         </head>
         <body>
           <div style="text-align: center;">
-            <img src="${window.location.origin}/logo.png" alt="Logo" />
+            <img src="${window.location.origin}/logo.png" alt="Logo" style="max-height: 60px; margin-bottom: 10px;" />
             <h1>ISD Lab Attendance Sheet</h1>
             <h3>Date: ${dayjs(date).format("DD/MM/YYYY")}</h3>
           </div>
-
+  
           <div class="meta">
             <p><strong>Downloaded by:</strong> ${user?.user_metadata?.first_name || ""} ${user?.user_metadata?.last_name || ""} (${user?.email})</p>
             <p><strong>Print Time:</strong> ${now}</p>
             <p><strong>IP Address:</strong> ${ip}</p>
             <p><strong>Page URL:</strong> ${window.location.href}</p>
           </div>
-
+  
           <table>
             <thead>
               <tr>
@@ -120,15 +164,26 @@ const AttendanceLog = () => {
                 .join("")}
             </tbody>
           </table>
+  
+          <div class="footer">
+            <p><a href="https://isdlab-webpage.vercel.app/">© 2025 ISD Lab, SRM Institute of Science and Technology, Kattankulathur</a></p>
+            <p>For issues or support, mail to <a href="mailto:isdlab@srmist.edu.in">isdlab@srmist.edu.in</a></p>
+           
+     
+          </div>
         </body>
       </html>
     `;
-
+  
     const printWindow = window.open("", "_blank");
     printWindow.document.write(printContent);
     printWindow.document.close();
     printWindow.print();
   };
+  
+  
+
+  
 
   const handleSort = (column) => {
     setSortConfig((prev) => ({
