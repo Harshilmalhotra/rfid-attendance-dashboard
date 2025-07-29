@@ -209,19 +209,19 @@ export default function NotificationsPage() {
         throw new Error('User not authenticated')
       }
 
-      // First check if preference exists
-      const { data: existing } = await supabase
+      // First try to update existing preference
+      const { data: existingData } = await supabase
         .from('notification_preferences')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
         .eq('notification_type', type)
         .single()
 
-      let error
+      let result
       
-      if (existing) {
+      if (existingData) {
         // Update existing preference
-        const result = await supabase
+        const { data, error } = await supabase
           .from('notification_preferences')
           .update({
             enabled: enabled,
@@ -229,11 +229,15 @@ export default function NotificationsPage() {
             email_enabled: false,
             updated_at: new Date().toISOString()
           })
-          .eq('id', existing.id)
-        error = result.error
+          .eq('user_id', user.id)
+          .eq('notification_type', type)
+          .select()
+          .single()
+          
+        result = { data, error }
       } else {
         // Insert new preference
-        const result = await supabase
+        const { data, error } = await supabase
           .from('notification_preferences')
           .insert({
             user_id: user.id,
@@ -242,21 +246,20 @@ export default function NotificationsPage() {
             push_enabled: enabled,
             email_enabled: false
           })
-        error = result.error
+          .select()
+          .single()
+          
+        result = { data, error }
       }
 
-      if (error) {
-        console.error('Upsert error:', error)
-        throw error
+      if (result.error) {
+        console.error('Database error:', result.error)
+        throw result.error
       }
 
       setPreferences(prev => ({
         ...prev,
-        [type]: {
-          ...prev[type],
-          enabled: enabled,
-          push_enabled: enabled
-        }
+        [type]: result.data
       }))
 
       setSuccess('Preferences updated successfully!')
