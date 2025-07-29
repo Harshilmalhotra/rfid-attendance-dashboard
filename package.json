@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
+    "build:profile": "NEXT_CPUPROFILE_PATH=./profile.cpuprofile next build",
     "start": "next start",
     "lint": "next lint"
   },

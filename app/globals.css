@@ -15,12 +15,12 @@
 
 .light {
   color-scheme: light;
-  @apply bg-light-background-primary text-light-foreground-primary;
+  @apply bg-gray-50 text-gray-900;
 }
 
 .dark {
   color-scheme: dark;
-  @apply bg-dark-background-primary text-dark-foreground-primary;
+  @apply bg-gray-900 text-gray-100;
 }
 
 a {
@@ -29,7 +29,7 @@ a {
 }
 
 body {
-  @apply m-0 flex place-items-center min-w-[320px] min-h-screen;
+  @apply m-0 min-w-[320px] min-h-screen;
   @apply bg-light-background-primary dark:bg-dark-background-primary;
   @apply text-light-foreground-primary dark:text-dark-foreground-primary;
 }

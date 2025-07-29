@@ -61,7 +61,7 @@ export default function ProtectedLayout({ children }) {
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <Sidebar />
           </Box>
-          <main className="flex-1 p-3 md:p-6 overflow-auto md:ml-[72px]">
+          <main className="flex-1 overflow-auto md:ml-[72px]">
             {children}
           </main>
         </div>
