@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Get all RFID UIDs from attendance table that don't have a corresponding user
     const { data: unassignedRfids, error } = await supabase
       .from('attendance')
       .select('rfid_uid')
-      .is('rfid_uid', 'not.null')
+      .not('rfid_uid', 'is', null)
       .order('created_at', { ascending: false })
     
     if (error) {

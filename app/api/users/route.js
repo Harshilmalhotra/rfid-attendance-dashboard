@@ -1,13 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
   try {
-    const supabase = createClient()
+    console.log('GET /api/users - Starting request')
+    // Use service client to bypass RLS for admin operations
+    const supabase = await createServiceClient()
     
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
     const role = searchParams.get('role')
+    
+    console.log('Query params:', { search, role })
     
     let query = supabase
       .from('users')
@@ -25,20 +30,35 @@ export async function GET(request) {
     const { data: users, error } = await query
     
     if (error) {
-      console.error('Error fetching users:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Supabase error fetching users:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return NextResponse.json({ 
+        error: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      }, { status: 500 })
     }
     
+    console.log(`Successfully fetched ${users?.length || 0} users`)
     return NextResponse.json({ users: users || [] })
   } catch (error) {
-    console.error('Server error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Server error in GET /api/users:', error)
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 })
   }
 }
 
 export async function PUT(request) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const body = await request.json()
     
     const { id, ...updateData } = body
@@ -75,7 +95,7 @@ export async function PUT(request) {
 
 export async function POST(request) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const body = await request.json()
     
     const { data, error } = await supabase
@@ -98,7 +118,7 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     

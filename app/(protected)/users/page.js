@@ -87,14 +87,19 @@ export default function Users() {
       if (searchDebounce) params.append('search', searchDebounce)
       if (roleFilter !== 'all') params.append('role', roleFilter)
       
+      console.log('Fetching users with params:', params.toString())
       const response = await fetch(`/api/users?${params}`)
       const data = await response.json()
       
+      console.log('API Response:', { status: response.status, data })
+      
       if (!response.ok) {
+        console.error('API Error:', data)
         throw new Error(data.error || 'Failed to fetch users')
       }
       
-      setUsers(data.users)
+      setUsers(data.users || [])
+      console.log('Users set:', data.users)
     } catch (error) {
       setError(error.message)
       console.error('Error fetching users:', error)
