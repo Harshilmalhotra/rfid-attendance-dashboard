@@ -29,7 +29,7 @@ export default function ErrorPage() {
             </Typography>
             
             <Alert severity="error" sx={{ my: 3 }}>
-              Sorry, we couldn't authenticate you. Please try again.
+              Sorry, we couldn&apos;t authenticate you. Please try again.
             </Alert>
             
             <Typography variant="body1" paragraph>
