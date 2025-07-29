@@ -7,6 +7,8 @@ import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import MigrationNotice from '@/components/MigrationNotice'
 import SessionRefresh from '@/components/SessionRefresh'
+import MobileNavigation from '@/components/MobileNavigation'
+import InstallPrompt from '@/components/InstallPrompt'
 import { Box, CircularProgress } from '@mui/material'
 
 export default function ProtectedLayout({ children }) {
@@ -52,14 +54,20 @@ export default function ProtectedLayout({ children }) {
     <>
       <SessionRefresh />
       <MigrationNotice />
+      <MobileNavigation />
+      <InstallPrompt />
       <div className="flex flex-col min-h-screen">
         <div className="flex-grow flex">
-          <Sidebar />
-          <main className="flex-1 p-6 overflow-auto md:ml-[72px]">
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Sidebar />
+          </Box>
+          <main className="flex-1 p-3 md:p-6 overflow-auto md:ml-[72px]">
             {children}
           </main>
         </div>
-        <Footer />
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Footer />
+        </Box>
       </div>
     </>
   )

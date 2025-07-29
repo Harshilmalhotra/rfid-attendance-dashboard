@@ -40,21 +40,21 @@ const StatCard = ({ title, value, icon, loading, color = "primary.main", subtitl
   <Paper
     elevation={2}
     sx={{
-      p: 3,
+      p: { xs: 2, sm: 3 },
       height: "100%",
       display: "flex",
       flexDirection: "column",
-      gap: 2,
+      gap: { xs: 1, sm: 2 },
       transition: 'all 0.3s ease',
       '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: 4,
+        transform: { xs: 'none', sm: 'translateY(-4px)' },
+        boxShadow: { xs: 2, sm: 4 },
       }
     }}
   >
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Box sx={{ color }}>{icon}</Box>
-      <Typography variant="subtitle2" color="text.secondary">
+      <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
         {title}
       </Typography>
     </Box>
@@ -62,7 +62,7 @@ const StatCard = ({ title, value, icon, loading, color = "primary.main", subtitl
       <Skeleton variant="text" width={100} height={40} />
     ) : (
       <>
-        <Typography variant="h4" fontWeight="bold">
+        <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
           {value}
         </Typography>
         {subtitle && (
@@ -169,9 +169,9 @@ export default function Dashboard() {
 
   return (
     <PageWrapper>
-      <Box sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" gutterBottom>
+      <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 10, md: 3 } }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 1 }}>
+          <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2rem' } }}>
             Dashboard
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -230,8 +230,8 @@ export default function Dashboard() {
 
         {/* Current Occupants List */}
         {currentOccupancy && currentOccupancy.currentlyInLab.length > 0 && (
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }} gutterBottom>
               Currently in Lab ({currentOccupancy.stats.currentOccupancy} people)
             </Typography>
             <Divider sx={{ mb: 2 }} />
@@ -279,8 +279,8 @@ export default function Dashboard() {
 
         {/* Empty State */}
         {currentOccupancy && currentOccupancy.currentlyInLab.length === 0 && (
-          <Paper elevation={2} sx={{ p: 4, mb: 3, textAlign: 'center' }}>
-            <Person sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+          <Paper elevation={2} sx={{ p: { xs: 3, sm: 4 }, mb: 3, textAlign: 'center' }}>
+            <Person sx={{ fontSize: { xs: 36, sm: 48 }, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="text.secondary">
               No one is currently in the lab
             </Typography>
@@ -288,18 +288,24 @@ export default function Dashboard() {
         )}
 
         {/* Charts Grid */}
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid item xs={12}>
-            <PeakHoursChart />
+            <Box sx={{ height: { xs: 350, sm: 400, md: 'auto' } }}>
+              <PeakHoursChart />
+            </Box>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <WeeklyOccupancyChart />
+          <Grid item xs={12} lg={6}>
+            <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
+              <WeeklyOccupancyChart />
+            </Box>
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} lg={8}>
             <OccupantsCard />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <TopUsersPieChart />
+          <Grid item xs={12} lg={4}>
+            <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
+              <TopUsersPieChart />
+            </Box>
           </Grid>
           <Grid item xs={12}>
             <LabUsageGauge />

@@ -167,15 +167,15 @@ export default function PeakHoursChart() {
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
-      <Stack spacing={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
+      <Stack spacing={{ xs: 1.5, sm: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
           <Box>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }} gutterBottom>
               Peak Hours Analysis
             </Typography>
             {data && data.peakHour && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <AccessTime fontSize="small" color="primary" />
                 <Typography variant="body2" color="text.secondary">
                   Peak Hour: 
@@ -196,6 +196,12 @@ export default function PeakHoursChart() {
               exclusive
               onChange={handleTimeRangeChange}
               size="small"
+              sx={{ 
+                '& .MuiToggleButton-root': { 
+                  px: { xs: 1, sm: 2 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                } 
+              }}
             >
               <ToggleButton value={7}>7D</ToggleButton>
               <ToggleButton value={30}>30D</ToggleButton>
@@ -207,6 +213,13 @@ export default function PeakHoursChart() {
               exclusive
               onChange={handleChartTypeChange}
               size="small"
+              sx={{ 
+                display: { xs: 'none', sm: 'flex' },
+                '& .MuiToggleButton-root': { 
+                  px: { xs: 1, sm: 2 },
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                } 
+              }}
             >
               <ToggleButton value="bar">Bar</ToggleButton>
               <ToggleButton value="line">Line</ToggleButton>
@@ -221,7 +234,7 @@ export default function PeakHoursChart() {
           </Alert>
         )}
 
-        <Box sx={{ width: '100%', height: 300 }}>
+        <Box sx={{ width: '100%', height: { xs: 250, sm: 300 } }}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
               <CircularProgress />

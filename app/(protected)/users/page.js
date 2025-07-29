@@ -38,8 +38,13 @@ import {
   Phone,
 } from '@mui/icons-material'
 import PageWrapper from '@/components/PageWrapper'
+import MobileUserCard from '@/components/MobileUserCard'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 
 export default function Users() {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -299,13 +304,15 @@ export default function Users() {
 
   return (
     <PageWrapper>
-      <Box sx={{ p: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4">User Management</Typography>
+      <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 10, md: 3 } }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} mb={3}>
+          <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2rem' } }}>User Management</Typography>
           <Button
             variant="contained"
             startIcon={<Add />}
             onClick={handleAddUser}
+            size={isMobile ? 'small' : 'medium'}
+            fullWidth={isMobile}
           >
             Add User
           </Button>
@@ -317,8 +324,8 @@ export default function Users() {
           </Alert>
         )}
 
-        <Paper sx={{ p: 2, mb: 3 }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: 3 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1.5, sm: 2 }}>
             <TextField
               placeholder="Search users..."
               value={searchTerm}
@@ -348,28 +355,53 @@ export default function Users() {
           </Stack>
         </Paper>
 
-        <Paper sx={{ height: 600, width: '100%' }}>
+        <Paper sx={{ width: '100%' }}>
           {loading && <LinearProgress />}
-          <DataGrid
-            rows={users}
-            columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10, 25, 50]}
-            disableSelectionOnClick
-            loading={loading}
-            sx={{
-              '& .MuiDataGrid-cell': {
-                borderBottom: 'none',
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: 'action.hover',
-              },
-            }}
-          />
+          {isMobile ? (
+            // Mobile view - Cards
+            <Box sx={{ p: 1 }}>
+              {users.map((user) => (
+                <MobileUserCard
+                  key={user.id}
+                  user={user}
+                  onEdit={handleEditUser}
+                  onDelete={handleDeleteUser}
+                />
+              ))}
+            </Box>
+          ) : (
+            // Desktop view - DataGrid
+            <Box sx={{ height: 600 }}>
+              <DataGrid
+                rows={users}
+                columns={columns}
+                pageSize={10}
+                rowsPerPageOptions={[10, 25, 50]}
+                disableSelectionOnClick
+                loading={loading}
+                sx={{
+                  '& .MuiDataGrid-cell': {
+                    borderBottom: 'none',
+                  },
+                  '& .MuiDataGrid-row:hover': {
+                    backgroundColor: 'action.hover',
+                  },
+                }}
+              />
+            </Box>
+          )}
         </Paper>
 
         {/* Add/Edit Dialog */}
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+        <Dialog 
+          open={openDialog} 
+          onClose={() => setOpenDialog(false)} 
+          maxWidth="sm" 
+          fullWidth
+          PaperProps={{
+            sx: { m: isMobile ? 1 : 2 }
+          }}
+        >
           <DialogTitle>
             {selectedUser ? 'Edit User' : 'Add New User'}
           </DialogTitle>

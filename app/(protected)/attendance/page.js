@@ -32,8 +32,13 @@ import SearchIcon from '@mui/icons-material/Search'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import DownloadIcon from '@mui/icons-material/Download'
 import PageWrapper from '@/components/PageWrapper'
+import MobileAttendanceCard from '@/components/MobileAttendanceCard'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 
 export default function AttendancePage() {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [attendanceData, setAttendanceData] = useState([])
@@ -140,19 +145,19 @@ export default function AttendancePage() {
   return (
     <PageWrapper>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h4" gutterBottom>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 10, md: 3 } }}>
+          <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2rem' }, mb: 2 }}>
             Attendance Records
           </Typography>
           
           {/* Filters */}
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 } }}>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' }, mb: 2 }}>
               Search Filters
             </Typography>
             
             <Stack spacing={2}>
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <DatePicker
                   label="Start Date"
                   value={startDate}
@@ -179,7 +184,7 @@ export default function AttendancePage() {
                 </FormControl>
               </Stack>
               
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <TextField
                   fullWidth
                   label="RFID UID"
@@ -223,17 +228,17 @@ export default function AttendancePage() {
           {/* Results */}
           <Paper sx={{ width: '100%', mb: 2 }}>
             {error && (
-              <Alert severity="error" sx={{ m: 2 }}>
+              <Alert severity="error" sx={{ m: { xs: 1, sm: 2 } }}>
                 {error}
               </Alert>
             )}
             
-            <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">
-                Results ({totalCount} records)
+            <Box sx={{ p: { xs: 1.5, sm: 2 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                Results ({totalCount})
               </Typography>
               <Tooltip title="Export to CSV">
-                <IconButton onClick={exportToCSV} disabled={attendanceData.length === 0}>
+                <IconButton onClick={exportToCSV} disabled={attendanceData.length === 0} size={isMobile ? 'small' : 'medium'}>
                   <DownloadIcon />
                 </IconButton>
               </Tooltip>
@@ -245,59 +250,70 @@ export default function AttendancePage() {
               </Box>
             ) : (
               <>
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>RFID UID</TableCell>
-                        <TableCell>User Name</TableCell>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Reg Number</TableCell>
-                        <TableCell>Role</TableCell>
-                        <TableCell>Check Time</TableCell>
-                        <TableCell>Check Type</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {attendanceData.map((row) => (
-                        <TableRow key={row.id}>
-                          <TableCell>{row.id}</TableCell>
-                          <TableCell>{row.rfidUid}</TableCell>
-                          <TableCell>{row.userName}</TableCell>
-                          <TableCell>{row.email}</TableCell>
-                          <TableCell>{row.regNumber}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.role}
-                              size="small"
-                              color={row.role === 'admin' ? 'error' : row.role === 'lead' ? 'warning' : 'default'}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            {new Date(row.checkTime).toLocaleString()}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={row.checkType}
-                              size="small"
-                              color={row.checkType === 'IN' ? 'success' : 'error'}
-                            />
-                          </TableCell>
+                {isMobile ? (
+                  // Mobile view - Cards
+                  <Box sx={{ p: 1 }}>
+                    {attendanceData.map((row) => (
+                      <MobileAttendanceCard key={row.id} record={row} />
+                    ))}
+                  </Box>
+                ) : (
+                  // Desktop view - Table
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>ID</TableCell>
+                          <TableCell>RFID UID</TableCell>
+                          <TableCell>User Name</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell>Reg Number</TableCell>
+                          <TableCell>Role</TableCell>
+                          <TableCell>Check Time</TableCell>
+                          <TableCell>Check Type</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      </TableHead>
+                      <TableBody>
+                        {attendanceData.map((row) => (
+                          <TableRow key={row.id}>
+                            <TableCell>{row.id}</TableCell>
+                            <TableCell>{row.rfidUid}</TableCell>
+                            <TableCell>{row.userName}</TableCell>
+                            <TableCell>{row.email}</TableCell>
+                            <TableCell>{row.regNumber}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.role}
+                                size="small"
+                                color={row.role === 'admin' ? 'error' : row.role === 'lead' ? 'warning' : 'default'}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              {new Date(row.checkTime).toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.checkType}
+                                size="small"
+                                color={row.checkType === 'IN' ? 'success' : 'error'}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
                 
                 <TablePagination
-                  rowsPerPageOptions={[10, 25, 50, 100]}
+                  rowsPerPageOptions={isMobile ? [10, 25] : [10, 25, 50, 100]}
                   component="div"
                   count={totalCount}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelRowsPerPage={isMobile ? 'Per page:' : 'Rows per page:'}
                 />
               </>
             )}
