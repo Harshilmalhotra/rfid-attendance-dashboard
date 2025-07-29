@@ -58,8 +58,8 @@ export default function AttendancePage() {
     try {
       const params = new URLSearchParams()
       
-      if (startDate) params.append('start_date', startDate.toISOString())
-      if (endDate) params.append('end_date', endDate.toISOString())
+      if (startDate) params.append('start_date', startDate.format('YYYY-MM-DD'))
+      if (endDate) params.append('end_date', endDate.format('YYYY-MM-DD'))
       if (rfidUid) params.append('rfid_uid', rfidUid)
       if (userName) params.append('user_name', userName)
       if (regNumber) params.append('reg_number', regNumber)

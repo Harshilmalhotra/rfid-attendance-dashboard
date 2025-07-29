@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState, useEffect } from 'react'
 import {
   Box,
   Paper,
@@ -19,8 +18,13 @@ import {
   Chip,
   Avatar,
   Tooltip,
-} from "@mui/material";
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Alert,
+} from '@mui/material'
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid'
 import {
   Add,
   Search,
@@ -31,384 +35,377 @@ import {
   CreditCard,
   CheckCircle,
   Cancel,
-} from "@mui/icons-material";
-import PageWrapper from "@/components/PageWrapper";
+  Phone,
+} from '@mui/icons-material'
+import PageWrapper from '@/components/PageWrapper'
 
 export default function Users() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
+  const [openDialog, setOpenDialog] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    rfid_tag: "",
-    phone_number: "",
-    department: "",
-  });
+    name: '',
+    email: '',
+    rfid_uid: '',
+    phone_number: '',
+    reg_number: '',
+    role: 'member',
+  })
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers()
+  }, [searchTerm, roleFilter])
 
   const fetchUsers = async () => {
-    setLoading(true);
+    setLoading(true)
+    setError('')
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      const processedUsers = data?.map((user) => ({
-        id: user.id,
-        full_name: user.full_name || "Not set",
-        email: user.email,
-        rfid_tag: user.rfid_tag || "Not assigned",
-        phone_number: user.phone_number || "Not provided",
-        department: user.department || "Not specified",
-        is_active: user.is_active ?? true,
-        created_at: new Date(user.created_at).toLocaleDateString(),
-      })) || [];
-
-      setUsers(processedUsers);
+      const params = new URLSearchParams()
+      if (searchTerm) params.append('search', searchTerm)
+      if (roleFilter !== 'all') params.append('role', roleFilter)
+      
+      const response = await fetch(`/api/users?${params}`)
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch users')
+      }
+      
+      setUsers(data.users)
     } catch (error) {
-      console.error("Error fetching users:", error);
+      setError(error.message)
+      console.error('Error fetching users:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleOpenDialog = (user = null) => {
-    if (user) {
-      setSelectedUser(user);
-      setFormData({
-        full_name: user.full_name,
-        email: user.email,
-        rfid_tag: user.rfid_tag === "Not assigned" ? "" : user.rfid_tag,
-        phone_number: user.phone_number === "Not provided" ? "" : user.phone_number,
-        department: user.department === "Not specified" ? "" : user.department,
-      });
-    } else {
-      setSelectedUser(null);
-      setFormData({
-        full_name: "",
-        email: "",
-        rfid_tag: "",
-        phone_number: "",
-        department: "",
-      });
-    }
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedUser(null);
+  const handleAddUser = () => {
+    setSelectedUser(null)
     setFormData({
-      full_name: "",
-      email: "",
-      rfid_tag: "",
-      phone_number: "",
-      department: "",
-    });
-  };
+      name: '',
+      email: '',
+      rfid_uid: '',
+      phone_number: '',
+      reg_number: '',
+      role: 'member',
+    })
+    setOpenDialog(true)
+  }
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user)
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      rfid_uid: user.rfid_uid || '',
+      phone_number: user.phone_number || '',
+      reg_number: user.reg_number || '',
+      role: user.role || 'member',
+    })
+    setOpenDialog(true)
+  }
+
+  const handleDeleteUser = async (id) => {
+    if (!confirm('Are you sure you want to delete this user?')) return
+    
+    try {
+      const response = await fetch(`/api/users?id=${id}`, {
+        method: 'DELETE',
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete user')
+      }
+      
+      fetchUsers()
+    } catch (error) {
+      setError(error.message)
+      console.error('Error deleting user:', error)
+    }
+  }
 
   const handleSubmit = async () => {
     try {
-      if (selectedUser) {
-        // Update existing user
-        const { error } = await supabase
-          .from("profiles")
-          .update({
-            full_name: formData.full_name,
-            rfid_tag: formData.rfid_tag || null,
-            phone_number: formData.phone_number || null,
-            department: formData.department || null,
-          })
-          .eq("id", selectedUser.id);
-
-        if (error) throw error;
-      } else {
-        // Create new user (would need auth flow)
-        console.log("Creating new user requires authentication flow");
+      const method = selectedUser ? 'PUT' : 'POST'
+      const body = selectedUser ? { id: selectedUser.id, ...formData } : formData
+      
+      const response = await fetch('/api/users', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save user')
       }
-
-      fetchUsers();
-      handleCloseDialog();
+      
+      setOpenDialog(false)
+      fetchUsers()
     } catch (error) {
-      console.error("Error saving user:", error);
+      setError(error.message)
+      console.error('Error saving user:', error)
     }
-  };
-
-  const handleToggleActive = async (userId, currentStatus) => {
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ is_active: !currentStatus })
-        .eq("id", userId);
-
-      if (error) throw error;
-      fetchUsers();
-    } catch (error) {
-      console.error("Error toggling user status:", error);
-    }
-  };
-
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        const { error } = await supabase
-          .from("profiles")
-          .delete()
-          .eq("id", userId);
-
-        if (error) throw error;
-        fetchUsers();
-      } catch (error) {
-        console.error("Error deleting user:", error);
-      }
-    }
-  };
-
-  const filteredUsers = users.filter((user) =>
-    Object.values(user).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  }
 
   const columns = [
     {
-      field: "full_name",
-      headerName: "Full Name",
-      flex: 1,
-      minWidth: 150,
+      field: 'avatar',
+      headerName: '',
+      width: 60,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Avatar sx={{ width: 32, height: 32 }}>
-            {params.value.charAt(0).toUpperCase()}
-          </Avatar>
-          <Typography>{params.value}</Typography>
-        </Stack>
+        <Avatar sx={{ width: 36, height: 36 }}>
+          {params.row.name?.charAt(0).toUpperCase() || '?'}
+        </Avatar>
       ),
     },
     {
-      field: "email",
-      headerName: "Email",
+      field: 'name',
+      headerName: 'Name',
+      flex: 1,
+      minWidth: 150,
+    },
+    {
+      field: 'email',
+      headerName: 'Email',
       flex: 1,
       minWidth: 200,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Email fontSize="small" color="action" />
-          <Typography variant="body2">{params.value}</Typography>
-        </Stack>
+          {params.value || '-'}
+        </Box>
       ),
     },
     {
-      field: "rfid_tag",
-      headerName: "RFID Tag",
+      field: 'reg_number',
+      headerName: 'Registration No.',
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1} alignItems="center">
-          <CreditCard fontSize="small" color="action" />
-          <Typography variant="body2">{params.value}</Typography>
-        </Stack>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Badge fontSize="small" color="action" />
+          {params.value || '-'}
+        </Box>
       ),
     },
     {
-      field: "department",
-      headerName: "Department",
+      field: 'rfid_uid',
+      headerName: 'RFID UID',
       flex: 1,
       minWidth: 150,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CreditCard fontSize="small" color="action" />
+          {params.value}
+        </Box>
+      ),
     },
     {
-      field: "is_active",
-      headerName: "Status",
+      field: 'phone_number',
+      headerName: 'Phone',
+      flex: 1,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Phone fontSize="small" color="action" />
+          {params.value || '-'}
+        </Box>
+      ),
+    },
+    {
+      field: 'role',
+      headerName: 'Role',
       width: 120,
       renderCell: (params) => (
         <Chip
-          label={params.value ? "Active" : "Inactive"}
-          color={params.value ? "success" : "default"}
+          label={params.value}
           size="small"
-          icon={params.value ? <CheckCircle /> : <Cancel />}
+          color={
+            params.value === 'admin'
+              ? 'error'
+              : params.value === 'lead'
+              ? 'warning'
+              : 'default'
+          }
         />
       ),
     },
     {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
+      field: 'created_at',
+      headerName: 'Joined',
+      width: 120,
+      valueFormatter: (params) => {
+        return new Date(params.value).toLocaleDateString()
+      },
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
       width: 100,
       getActions: (params) => [
         <GridActionsCellItem
           key="edit"
           icon={<Edit />}
           label="Edit"
-          onClick={() => handleOpenDialog(params.row)}
-        />,
-        <GridActionsCellItem
-          key="toggle"
-          icon={
-            params.row.is_active ? (
-              <Cancel color="error" />
-            ) : (
-              <CheckCircle color="success" />
-            )
-          }
-          label={params.row.is_active ? "Deactivate" : "Activate"}
-          onClick={() => handleToggleActive(params.row.id, params.row.is_active)}
+          onClick={() => handleEditUser(params.row)}
         />,
         <GridActionsCellItem
           key="delete"
           icon={<Delete />}
           label="Delete"
           onClick={() => handleDeleteUser(params.row.id)}
-          sx={{ color: "error.main" }}
+          sx={{ color: 'error.main' }}
         />,
       ],
     },
-  ];
+  ]
 
   return (
     <PageWrapper>
-      <Box sx={{ width: "100%" }}>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "stretch", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 3 }}
-        >
-          <Typography variant="h4" fontWeight="bold">
-            Users Management
-          </Typography>
+      <Box sx={{ p: 3 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography variant="h4">User Management</Typography>
           <Button
             variant="contained"
             startIcon={<Add />}
-            onClick={() => handleOpenDialog()}
+            onClick={handleAddUser}
           >
             Add User
           </Button>
         </Stack>
 
-        {/* Search Bar */}
-        <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-          <TextField
-            fullWidth
-            placeholder="Search users by name, email, RFID tag, or department..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-          />
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+            <TextField
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ flex: 1 }}
+            />
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                label="Role"
+              >
+                <MenuItem value="all">All Roles</MenuItem>
+                <MenuItem value="member">Member</MenuItem>
+                <MenuItem value="lead">Lead</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
         </Paper>
 
-        {/* Users Grid */}
-        <Paper elevation={2} sx={{ height: 600 }}>
+        <Paper sx={{ height: 600, width: '100%' }}>
           {loading && <LinearProgress />}
           <DataGrid
-            rows={filteredUsers}
+            rows={users}
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[10, 25, 50]}
             disableSelectionOnClick
             loading={loading}
             sx={{
-              "& .MuiDataGrid-cell": {
-                borderBottom: "1px solid rgba(224, 224, 224, 0.4)",
+              '& .MuiDataGrid-cell': {
+                borderBottom: 'none',
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: 'action.hover',
               },
             }}
           />
         </Paper>
 
-        {/* User Dialog */}
-        <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        {/* Add/Edit Dialog */}
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
           <DialogTitle>
-            {selectedUser ? "Edit User" : "Add New User"}
+            {selectedUser ? 'Edit User' : 'Add New User'}
           </DialogTitle>
           <DialogContent>
             <Stack spacing={2} sx={{ mt: 2 }}>
               <TextField
+                label="Name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 fullWidth
-                label="Full Name"
-                value={formData.full_name}
-                onChange={(e) =>
-                  setFormData({ ...formData, full_name: e.target.value })
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Badge />
-                    </InputAdornment>
-                  ),
-                }}
+                required
               />
               <TextField
-                fullWidth
                 label="Email"
                 type="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                disabled={selectedUser !== null}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Email />
-                    </InputAdornment>
-                  ),
-                }}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                fullWidth
               />
               <TextField
+                label="Registration Number"
+                value={formData.reg_number}
+                onChange={(e) => setFormData({ ...formData, reg_number: e.target.value })}
                 fullWidth
-                label="RFID Tag"
-                value={formData.rfid_tag}
-                onChange={(e) =>
-                  setFormData({ ...formData, rfid_tag: e.target.value })
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CreditCard />
-                    </InputAdornment>
-                  ),
-                }}
               />
               <TextField
+                label="RFID UID"
+                value={formData.rfid_uid}
+                onChange={(e) => setFormData({ ...formData, rfid_uid: e.target.value })}
                 fullWidth
+                required
+              />
+              <TextField
                 label="Phone Number"
+                type="tel"
                 value={formData.phone_number}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone_number: e.target.value })
-                }
-              />
-              <TextField
+                onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                 fullWidth
-                label="Department"
-                value={formData.department}
-                onChange={(e) =>
-                  setFormData({ ...formData, department: e.target.value })
-                }
               />
+              <FormControl fullWidth>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  label="Role"
+                >
+                  <MenuItem value="member">Member</MenuItem>
+                  <MenuItem value="lead">Lead</MenuItem>
+                  <MenuItem value="admin">Admin</MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
+            <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
             <Button onClick={handleSubmit} variant="contained">
-              {selectedUser ? "Update" : "Create"}
+              {selectedUser ? 'Update' : 'Add'} User
             </Button>
           </DialogActions>
         </Dialog>
       </Box>
     </PageWrapper>
-  );
+  )
 }

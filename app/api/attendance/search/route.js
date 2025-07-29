@@ -36,10 +36,16 @@ export async function GET(request) {
 
     // Apply filters
     if (startDate) {
-      query = query.gte('created_at', startDate)
+      // Start of the day
+      const startOfDay = new Date(startDate)
+      startOfDay.setHours(0, 0, 0, 0)
+      query = query.gte('created_at', startOfDay.toISOString())
     }
     if (endDate) {
-      query = query.lte('created_at', endDate)
+      // End of the day (23:59:59.999)
+      const endOfDay = new Date(endDate)
+      endOfDay.setHours(23, 59, 59, 999)
+      query = query.lte('created_at', endOfDay.toISOString())
     }
     if (rfidUid) {
       query = query.eq('rfid_uid', rfidUid)
