@@ -244,11 +244,13 @@ export default function Users() {
       width: 100,
       getActions: (params) => [
         <GridActionsCellItem
+          key="edit"
           icon={<Edit />}
           label="Edit"
           onClick={() => handleOpenDialog(params.row)}
         />,
         <GridActionsCellItem
+          key="toggle"
           icon={
             params.row.is_active ? (
               <Cancel color="error" />
@@ -260,6 +262,7 @@ export default function Users() {
           onClick={() => handleToggleActive(params.row.id, params.row.is_active)}
         />,
         <GridActionsCellItem
+          key="delete"
           icon={<Delete />}
           label="Delete"
           onClick={() => handleDeleteUser(params.row.id)}

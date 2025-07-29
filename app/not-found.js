@@ -23,7 +23,7 @@ export default function NotFound() {
         Page Not Found
       </Typography>
       <Typography variant="body1" color="textSecondary" mb={3}>
-        The page you're looking for doesn't exist or has been moved.
+        The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </Typography>
       <Button variant="contained" onClick={() => router.push("/")}>
         Go Home

@@ -106,6 +106,7 @@ export default function Auth() {
           transition={{ duration: 0.5 }}
         >
           <Box sx={{ mb: 4, textAlign: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.png"
               alt="Logo"
