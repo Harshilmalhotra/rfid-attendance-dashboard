@@ -60,7 +60,7 @@ export default function AdminManagementPage() {
         .from('admin')
         .select('email')
         .eq('email', user.email.toLowerCase())
-        .single()
+        .maybeSingle()
 
       if (error || !data) {
         router.push('/dashboard')

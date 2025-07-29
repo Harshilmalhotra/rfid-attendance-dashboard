@@ -76,13 +76,11 @@ const Sidebar = () => {
             .from('admin')
             .select('email')
             .eq('email', user.email.toLowerCase())
-            .single();
+            .maybeSingle();
           
-          if (!error && data) {
-            setIsAdmin(true);
-          }
+          setIsAdmin(!error && data !== null);
         } catch (error) {
-          // Not an admin or error checking
+          console.error('Error checking admin status:', error);
           setIsAdmin(false);
         }
       }

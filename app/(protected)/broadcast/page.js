@@ -97,7 +97,7 @@ export default function BroadcastPage() {
         .from('admin')
         .select('email')
         .eq('email', user.email.toLowerCase())
-        .single()
+        .maybeSingle()
 
       if (error || !data) {
         // Not an admin

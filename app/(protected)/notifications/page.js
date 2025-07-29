@@ -209,17 +209,41 @@ export default function NotificationsPage() {
         throw new Error('User not authenticated')
       }
 
-      const { error } = await supabase
+      // First check if preference exists
+      const { data: existing } = await supabase
         .from('notification_preferences')
-        .upsert({
-          user_id: user.id,
-          notification_type: type,
-          enabled: enabled,
-          push_enabled: enabled,
-          email_enabled: false
-        }, {
-          onConflict: 'user_id,notification_type'
-        })
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('notification_type', type)
+        .single()
+
+      let error
+      
+      if (existing) {
+        // Update existing preference
+        const result = await supabase
+          .from('notification_preferences')
+          .update({
+            enabled: enabled,
+            push_enabled: enabled,
+            email_enabled: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+        error = result.error
+      } else {
+        // Insert new preference
+        const result = await supabase
+          .from('notification_preferences')
+          .insert({
+            user_id: user.id,
+            notification_type: type,
+            enabled: enabled,
+            push_enabled: enabled,
+            email_enabled: false
+          })
+        error = result.error
+      }
 
       if (error) {
         console.error('Upsert error:', error)
