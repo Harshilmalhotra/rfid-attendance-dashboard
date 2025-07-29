@@ -117,7 +117,9 @@ export default function NotificationsPage() {
 
   const loadPreferences = async () => {
     try {
-      const response = await fetch('/api/notifications/preferences')
+      const response = await fetch('/api/notifications/preferences', {
+        credentials: 'include'
+      })
       const data = await response.json()
       
       if (!response.ok) {
@@ -165,6 +167,7 @@ export default function NotificationsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           subscription: subscription.toJSON(),
           device_name: navigator.userAgent,
@@ -194,6 +197,7 @@ export default function NotificationsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           notification_type: type,
           enabled: enabled,
