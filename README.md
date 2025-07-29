@@ -1,33 +1,70 @@
- ✓ Compiled /auth in 8.4s (1871 modules)
-Error: Route "/auth" used `searchParams.message`. `searchParams` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
-    at LoginPage (app\auth\page.js:23:18)
-  21 |
-  22 | export default function LoginPage({ searchParams }) {
-> 23 |   const message = searchParams?.message
-     |                  ^
-  24 |
-  25 |   return (
-  26 |     <Container component="main" maxWidth="xs">
-A button can only specify a formAction along with type="submit" or no type.
- GET /auth 200 in 10276ms
- ✓ Compiled in 1964ms (784 modules)
-Error: Route "/auth" used `searchParams.message`. `searchParams` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
-    at LoginPage (app\auth\page.js:23:18)
-  21 |
-  22 | export default function LoginPage({ searchParams }) {
-> 23 |   const message = searchParams?.message
-     |                  ^
-  24 |
-  25 |   return (
-  26 |     <Container component="main" maxWidth="xs">
- GET /auth 200 in 133ms
-Error: Route "/auth" used `searchParams.message`. `searchParams` should be awaited before using its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
-    at LoginPage (app\auth\page.js:23:18)
-  21 |
-  22 | export default function LoginPage({ searchParams }) {
-> 23 |   const message = searchParams?.message
-     |                  ^
-  24 |
-  25 |   return (
-  26 |     <Container component="main" maxWidth="xs">
- GET /auth 200 in 170ms
+Request URL
+http://localhost:3000/auth
+Request Method
+POST
+Status Code
+303 See Other
+Remote Address
+[::1]:3000
+Referrer Policy
+strict-origin-when-cross-origin
+cache-control
+no-store, must-revalidate
+connection
+keep-alive
+content-encoding
+gzip
+content-type
+text/x-component
+date
+Tue, 29 Jul 2025 16:57:09 GMT
+keep-alive
+timeout=5
+transfer-encoding
+chunked
+vary
+RSC, Next-Router-State-Tree, Next-Router-Prefetch, Next-Router-Segment-Prefetch, Accept-Encoding
+x-action-redirect
+/error;push
+x-action-revalidated
+[[],0,0]
+x-powered-by
+Next.js
+accept
+text/x-component
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9,en-IN;q=0.8
+connection
+keep-alive
+content-length
+368
+content-type
+multipart/form-data; boundary=----WebKitFormBoundary2mZeN2ojXwzfsMBp
+cookie
+__next_hmr_refresh_hash__=234; sb-aiopmxvovmeossnbtksq-auth-token=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SWtWTE1Ea3dWakp2TWtaRWJuQTVUM1VpTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDJGcGIzQnRlSFp2ZG0xbGIzTnpibUowYTNOeExuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSmhOelZrTnpjd05TMDNNVEZsTFRRd1kyTXRZakEwWXkwek9ERXdaRFJoTkRBeVpEa2lMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpVek5UWXlPVGc0TENKcFlYUWlPakUzTlRNMU5Ua3pPRGdzSW1WdFlXbHNJam9pYldGc2FHOTBjbUZvWVhKemFHbHNNaXQwWlhOME0wQm5iV0ZwYkM1amIyMGlMQ0p3YUc5dVpTSTZJaUlzSW1Gd2NGOXRaWFJoWkdGMFlTSTZleUp3Y205MmFXUmxjaUk2SW1WdFlXbHNJaXdpY0hKdmRtbGtaWEp6SWpwYkltVnRZV2xzSWwxOUxDSjFjMlZ5WDIxbGRHRmtZWFJoSWpwN0ltVnRZV2xzSWpvaWJXRnNhRzkwY21Gb1lYSnphR2xzTWl0MFpYTjBNMEJuYldGcGJDNWpiMjBpTENKbGJXRnBiRjkyWlhKcFptbGxaQ0k2ZEhKMVpTd2lablZzYkY5dVlXMWxJam9pU0dGeWMyaHBiQ0JOWVd4b2IzUnlZU0lzSW5Cb2IyNWxJam9pTmpJek1Ea3pNVEEzTlNJc0luQm9iMjVsWDNabGNtbG1hV1ZrSWpwbVlXeHpaU3dpYzNWaUlqb2lZVGMxWkRjM01EVXROekV4WlMwME1HTmpMV0l3TkdNdE16Z3hNR1EwWVRRd01tUTVJbjBzSW5KdmJHVWlPaUpoZFhSb1pXNTBhV05oZEdWa0lpd2lZV0ZzSWpvaVlXRnNNU0lzSW1GdGNpSTZXM3NpYldWMGFHOWtJam9pY0dGemMzZHZjbVFpTENKMGFXMWxjM1JoYlhBaU9qRTNOVE0xTkRjME1URjlYU3dpYzJWemMybHZibDlwWkNJNkltWXhNekpoWTJKa0xUazJObU10TkdFNFpDMDVOREpqTFRZeU1HUmtOekF4TmpreVlTSXNJbWx6WDJGdWIyNTViVzkxY3lJNlptRnNjMlY5LkVlTmZZMVFTazBBMnFkRHh4dFU1cFBwbDBqcU1ROHRscmhkYi1YWC16SjgiLCJ0b2tlbl90eXBlIjoiYmVhcmVyIiwiZXhwaXJlc19pbiI6MzYwMCwiZXhwaXJlc19hdCI6MTc1MzU2Mjk4OCwicmVmcmVzaF90b2tlbiI6InByM2NuaXp5bnQybiIsInVzZXIiOnsiaWQiOiJhNzVkNzcwNS03MTFlLTQwY2MtYjA0Yy0zODEwZDRhNDAyZDkiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJlbWFpbCI6Im1hbGhvdHJhaGFyc2hpbDIrdGVzdDNAZ21haWwuY29tIiwiZW1haWxfY29uZmlybWVkX2F0IjoiMjAyNS0wNy0xOVQxODo1MTo0Ni4xODUyMDRaIiwicGhvbmUiOiIiLCJjb25maXJtZWRfYXQiOiIyMDI1LTA3LTE5VDE4OjUxOjQ2LjE4NTIwNFoiLCJsYXN0X3NpZ25faW5fYXQiOiIyMDI1LTA3LTI2VDE2OjMwOjExLjE4ODYwMVoiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6Im1hbGhvdHJhaGFyc2hpbDIrdGVzdDNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IkhhcnNoaWwgTWFsaG90cmEiLCJwaG9uZSI6IjYyMzA5MzEwNzUiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6ImE3NWQ3NzA1LTcxMWUtNDBjYy1iMDRjLTM4MTBkNGE0MDJkOSJ9LCJpZGVudGl0aWVzIjpbeyJpZGVudGl0eV9pZCI6ImZmOTIyYThlLWM1MGItNGU5Ny04YjlkLTQyZjJjMDNkNmMwOCIsImlkIjoiYTc1ZDc3MDUtNzExZS00MGNjLWIwNGMtMzgxMGQ0YTQwMmQ5IiwidXNlcl9pZCI6ImE3NWQ3NzA1LTcxMWUtNDBjYy1iMDRjLTM4MTBkNGE0MDJkOSIsImlkZW50aXR5X2RhdGEiOnsiZW1haWwiOiJtYWxob3RyYWhhcnNoaWwyK3Rlc3QzQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZnVsbF9uYW1lIjoiSGFyc2hpbCBNYWxob3RyYSIsInBob25lIjoiNjIzMDkzMTA3NSIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiYTc1ZDc3MDUtNzExZS00MGNjLWIwNGMtMzgxMGQ0YTQwMmQ5In0sInByb3ZpZGVyIjoiZW1haWwiLCJsYXN0X3NpZ25faW5fYXQiOiIyMDI1LTA3LTE5VDE4OjUxOjQ2LjE4MDY4NVoiLCJjcmVhdGVkX2F0IjoiMjAyNS0wNy0xOVQxODo1MTo0Ni4xODA3MzRaIiwidXBkYXRlZF9hdCI6IjIwMjUtMDctMTlUMTg6NTE6NDYuMTgwNzM0WiIsImVtYWlsIjoibWFsaG90cmFoYXJzaGlsMit0ZXN0M0BnbWFpbC5jb20ifV0sImNyZWF0ZWRfYXQiOiIyMDI1LTA3LTE5VDE4OjUxOjQ2LjE3NTIzMloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0wNy0yNlQxOTo0OTo0OC44NTkxOThaIiwiaXNfYW5vbnltb3VzIjpmYWxzZX19; __next_hmr_refresh_hash__=175
+host
+localhost:3000
+next-action
+4014d5652805df06ed63416e0aee67048185e22744
+next-router-state-tree
+%5B%22%22%2C%7B%22children%22%3A%5B%22auth%22%2C%7B%22children%22%3A%5B%22__PAGE__%22%2C%7B%7D%2Cnull%2Cnull%5D%7D%2Cnull%2Cnull%5D%7D%2Cnull%2Cnull%2Ctrue%5D
+origin
+http://localhost:3000
+referer
+http://localhost:3000/auth
+sec-ch-ua
+"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"
+sec-ch-ua-mobile
+?1
+sec-ch-ua-platform
+"Android"
+sec-fetch-dest
+empty
+sec-fetch-mode
+cors
+sec-fetch-site
+same-origin
+user-agent
+Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36 Edg/138.0.0.0
