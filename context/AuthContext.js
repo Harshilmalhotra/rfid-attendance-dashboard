@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for changes on auth state (sign in, sign out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('Auth state changed:', event, session);
       
       setSession(session);
       setUser(session?.user ?? null);
@@ -52,9 +52,11 @@ export const AuthProvider = ({ children }) => {
       // Handle auth events
       switch (event) {
         case 'SIGNED_IN':
+          console.log('User signed in, redirecting to dashboard');
           router.push('/dashboard');
           break;
         case 'SIGNED_OUT':
+          console.log('User signed out, redirecting to auth');
           router.push('/auth');
           break;
         case 'TOKEN_REFRESHED':
@@ -64,6 +66,12 @@ export const AuthProvider = ({ children }) => {
           // Refresh user data
           if (session?.user) {
             setUser(session.user);
+          }
+          break;
+        case 'INITIAL_SESSION':
+          // Handle initial session on page load
+          if (session?.user) {
+            console.log('Initial session detected');
           }
           break;
       }
@@ -100,6 +108,18 @@ export const AuthProvider = ({ children }) => {
       });
       
       if (error) throw error;
+      
+      // Update local state immediately
+      if (data.session) {
+        setSession(data.session);
+        setUser(data.session.user);
+        
+        // Small delay to ensure state is updated before navigation
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 100);
+      }
+      
       return { data, error: null };
     } catch (error) {
       console.error('Sign in error:', error);
