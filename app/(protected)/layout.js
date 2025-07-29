@@ -1,71 +1,61 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
 import Sidebar from '@/components/Sidebar'
 import Footer from '@/components/Footer'
 import MigrationNotice from '@/components/MigrationNotice'
+import SessionRefresh from '@/components/SessionRefresh'
+import { Box, CircularProgress } from '@mui/material'
 
 export default function ProtectedLayout({ children }) {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const { user, loading } = useAuth()
   const isAuthDisabled = process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true'
   const isProduction = process.env.NODE_ENV === 'production'
 
   useEffect(() => {
-    const checkUser = async () => {
-      // Skip auth check only if auth is disabled AND not in production
-      if (isAuthDisabled && !isProduction) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Auth session error:', error)
-          router.push('/auth')
-          return
-        }
-
-        if (!session) {
-          router.push('/auth')
-        }
-      } catch (error) {
-        console.error('Auth check error:', error)
-        router.push('/auth')
-      } finally {
-        setLoading(false)
-      }
+    // Skip auth check only if auth is disabled AND not in production
+    if (isAuthDisabled && !isProduction) {
+      return
     }
 
-    checkUser()
-
-    // Always set up auth listener in production or when auth is enabled
-    if (!isAuthDisabled || isProduction) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          router.push('/auth')
-        }
-      })
-
-      return () => subscription.unsubscribe()
+    // If not loading and no user, redirect to auth
+    if (!loading && !user) {
+      router.push('/auth')
     }
-  }, [router, isAuthDisabled, isProduction])
+  }, [user, loading, router, isAuthDisabled, isProduction])
 
-  if (loading) {
-    return <div>Loading...</div>
+  // Show loading state
+  if (loading && (!isAuthDisabled || isProduction)) {
+    return (
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh' 
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  // Don't render protected content if not authenticated (unless auth is disabled in development)
+  if (!user && (!isAuthDisabled || isProduction)) {
+    return null
   }
 
   return (
     <>
+      <SessionRefresh />
       <MigrationNotice />
       <div className="flex flex-col min-h-screen">
         <div className="flex-grow flex">
           <Sidebar />
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-6 overflow-auto md:ml-[72px]">
             {children}
           </main>
         </div>

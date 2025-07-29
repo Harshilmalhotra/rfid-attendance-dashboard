@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -31,6 +32,7 @@ import {
 
 export default function Auth() {
   const router = useRouter();
+  const { user, signIn, signUp, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +40,13 @@ export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -47,22 +56,13 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
+        const { error } = await signUp(email, password);
         if (error) throw error;
         setSuccess("Check your email for the confirmation link!");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await signIn(email, password);
         if (error) throw error;
-        router.push("/dashboard");
+        // Navigation handled by auth context
       }
     } catch (error) {
       setError(error.message);
@@ -76,12 +76,7 @@ export default function Auth() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      const { error } = await signInWithGoogle();
       if (error) throw error;
     } catch (error) {
       setError(error.message);
@@ -106,12 +101,15 @@ export default function Auth() {
           transition={{ duration: 0.5 }}
         >
           <Box sx={{ mb: 4, textAlign: "center" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="Logo"
-              style={{ height: 60, marginBottom: 16 }}
-            />
+            <Box sx={{ position: 'relative', width: 120, height: 120, mx: 'auto', mb: 2 }}>
+              <Image
+                src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.png"}
+                alt="ISD Lab Logo"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </Box>
             <Typography component="h1" variant="h4" fontWeight="bold">
               RFID Attendance
             </Typography>
