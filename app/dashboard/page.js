@@ -310,16 +310,14 @@ export default function Dashboard() {
         {/* Charts Grid */}
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid item xs={12}>
-            <Box sx={{ height: { xs: 350, sm: 400, md: 'auto' } }}>
-              {loading ? (
-                <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
-                  <Skeleton variant="text" width={200} height={32} sx={{ mb: 2 }} />
-                  <Skeleton variant="rectangular" width="100%" height="80%" />
-                </Paper>
-              ) : (
-                <PeakHoursChart />
-              )}
-            </Box>
+            {loading ? (
+              <Paper elevation={2} sx={{ p: 3, height: { xs: 420, sm: 450, md: 400 } }}>
+                <Skeleton variant="text" width={200} height={32} sx={{ mb: 2 }} />
+                <Skeleton variant="rectangular" width="100%" height="80%" />
+              </Paper>
+            ) : (
+              <PeakHoursChart />
+            )}
           </Grid>
           <Grid item xs={12}>
             <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>

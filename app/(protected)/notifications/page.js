@@ -97,11 +97,19 @@ export default function NotificationsPage() {
   const [pushSupported, setPushSupported] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  
+  // Debug: Log user info
+  useEffect(() => {
+    console.log('Current user:', user)
+    console.log('User ID:', user?.id)
+  }, [user])
 
   useEffect(() => {
     checkPushSupport()
-    loadPreferences()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    if (user?.id) {
+      loadPreferences()
+    }
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkPushSupport = () => {
     if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
@@ -112,12 +120,22 @@ export default function NotificationsPage() {
 
   const loadPreferences = async () => {
     try {
+      if (!user?.id) {
+        console.error('No user ID available')
+        setError('User not authenticated')
+        setLoading(false)
+        return
+      }
+
       const { data, error } = await supabase
         .from('notification_preferences')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
 
       // Convert array to object for easier access
       const prefsObj = {}
@@ -127,7 +145,7 @@ export default function NotificationsPage() {
       setPreferences(prefsObj)
     } catch (error) {
       console.error('Error loading preferences:', error)
-      setError('Failed to load notification preferences')
+      setError(`Failed to load notification preferences: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -187,17 +205,26 @@ export default function NotificationsPage() {
     setSuccess('')
 
     try {
+      if (!user?.id) {
+        throw new Error('User not authenticated')
+      }
+
       const { error } = await supabase
         .from('notification_preferences')
         .upsert({
-          user_id: user?.id,
+          user_id: user.id,
           notification_type: type,
           enabled: enabled,
           push_enabled: enabled,
           email_enabled: false
+        }, {
+          onConflict: 'user_id,notification_type'
         })
 
-      if (error) throw error
+      if (error) {
+        console.error('Upsert error:', error)
+        throw error
+      }
 
       setPreferences(prev => ({
         ...prev,

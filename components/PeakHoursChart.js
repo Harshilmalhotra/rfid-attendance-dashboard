@@ -102,9 +102,9 @@ export default function PeakHoursChart() {
       data: data.chartData,
       margin: { 
         top: 5, 
-        right: isMobile ? 5 : 10, 
-        left: isMobile ? 35 : 40, 
-        bottom: isMobile ? 20 : 5 
+        right: isMobile ? 10 : 20, 
+        left: isMobile ? 40 : 50, 
+        bottom: isMobile ? 60 : 40 
       }
     }
 
@@ -117,15 +117,22 @@ export default function PeakHoursChart() {
               dataKey="time" 
               angle={isMobile ? -45 : 0}
               textAnchor={isMobile ? "end" : "middle"}
-              height={isMobile ? 60 : 30}
+              height={isMobile ? 80 : 40}
               tick={{ fontSize: isMobile ? 10 : 12 }}
+              interval={isMobile ? 2 : 0}
             />
             <YAxis 
               tick={{ fontSize: isMobile ? 10 : 12 }}
-              width={isMobile ? 30 : 40}
+              width={isMobile ? 35 : 45}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend 
+              wrapperStyle={{ 
+                paddingTop: isMobile ? '10px' : '5px',
+                fontSize: isMobile ? '12px' : '14px'
+              }}
+              iconSize={isMobile ? 14 : 18}
+            />
             <Line 
               type="monotone" 
               dataKey="avgOccupancy" 
@@ -154,15 +161,22 @@ export default function PeakHoursChart() {
               dataKey="time" 
               angle={isMobile ? -45 : 0}
               textAnchor={isMobile ? "end" : "middle"}
-              height={isMobile ? 60 : 30}
+              height={isMobile ? 80 : 40}
               tick={{ fontSize: isMobile ? 10 : 12 }}
+              interval={isMobile ? 2 : 0}
             />
             <YAxis 
               tick={{ fontSize: isMobile ? 10 : 12 }}
-              width={isMobile ? 30 : 40}
+              width={isMobile ? 35 : 45}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend 
+              wrapperStyle={{ 
+                paddingTop: isMobile ? '10px' : '5px',
+                fontSize: isMobile ? '12px' : '14px'
+              }}
+              iconSize={isMobile ? 14 : 18}
+            />
             <Area 
               type="monotone" 
               dataKey="avgOccupancy" 
@@ -182,15 +196,22 @@ export default function PeakHoursChart() {
               dataKey="time" 
               angle={isMobile ? -45 : 0}
               textAnchor={isMobile ? "end" : "middle"}
-              height={isMobile ? 60 : 30}
+              height={isMobile ? 80 : 40}
               tick={{ fontSize: isMobile ? 10 : 12 }}
+              interval={isMobile ? 2 : 0}
             />
             <YAxis 
               tick={{ fontSize: isMobile ? 10 : 12 }}
-              width={isMobile ? 30 : 40}
+              width={isMobile ? 35 : 45}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
+            <Legend 
+              wrapperStyle={{ 
+                paddingTop: isMobile ? '10px' : '5px',
+                fontSize: isMobile ? '12px' : '14px'
+              }}
+              iconSize={isMobile ? 14 : 18}
+            />
             <Bar 
               dataKey="avgOccupancy" 
               fill="#8884d8"
@@ -203,7 +224,13 @@ export default function PeakHoursChart() {
   }
 
   return (
-    <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, height: '100%', width: '100%', overflow: 'visible' }}>
+    <Paper elevation={2} sx={{ 
+      p: { xs: 2, sm: 3 }, 
+      height: { xs: 'auto', sm: '100%' }, 
+      width: '100%', 
+      overflow: 'visible',
+      minHeight: { xs: 420, sm: 450 }
+    }}>
       <Stack spacing={{ xs: 1.5, sm: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 2 } }}>
           <Box sx={{ flex: 1 }}>
@@ -226,41 +253,42 @@ export default function PeakHoursChart() {
             )}
           </Box>
           
-          <Stack direction="row" spacing={1} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>
-            <ToggleButtonGroup
-              value={timeRange}
-              exclusive
-              onChange={handleTimeRangeChange}
-              size="small"
-              sx={{ 
-                '& .MuiToggleButton-root': { 
-                  px: { xs: 1, sm: 2 },
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                } 
-              }}
-            >
-              <ToggleButton value={7}>7D</ToggleButton>
-              <ToggleButton value={30}>30D</ToggleButton>
-              <ToggleButton value={90}>90D</ToggleButton>
-            </ToggleButtonGroup>
-            
-            <ToggleButtonGroup
-              value={chartType}
-              exclusive
-              onChange={handleChartTypeChange}
-              size="small"
-              sx={{ 
-                display: { xs: 'none', sm: 'flex' },
-                '& .MuiToggleButton-root': { 
-                  px: { xs: 1, sm: 2 },
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
-                } 
-              }}
-            >
-              <ToggleButton value="bar">Bar</ToggleButton>
-              <ToggleButton value="line">Line</ToggleButton>
-              <ToggleButton value="area">Area</ToggleButton>
-            </ToggleButtonGroup>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>
+            <Stack direction="row" spacing={1}>
+              <ToggleButtonGroup
+                value={timeRange}
+                exclusive
+                onChange={handleTimeRangeChange}
+                size="small"
+                sx={{ 
+                  '& .MuiToggleButton-root': { 
+                    px: { xs: 1, sm: 2 },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  } 
+                }}
+              >
+                <ToggleButton value={7}>7D</ToggleButton>
+                <ToggleButton value={30}>30D</ToggleButton>
+                <ToggleButton value={90}>90D</ToggleButton>
+              </ToggleButtonGroup>
+              
+              <ToggleButtonGroup
+                value={chartType}
+                exclusive
+                onChange={handleChartTypeChange}
+                size="small"
+                sx={{ 
+                  '& .MuiToggleButton-root': { 
+                    px: { xs: 1, sm: 2 },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  } 
+                }}
+              >
+                <ToggleButton value="bar">Bar</ToggleButton>
+                <ToggleButton value="line">Line</ToggleButton>
+                <ToggleButton value="area">Area</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
           </Stack>
         </Box>
 
@@ -270,7 +298,13 @@ export default function PeakHoursChart() {
           </Alert>
         )}
 
-        <Box sx={{ width: '100%', height: { xs: 300, sm: 320 }, position: 'relative' }}>
+        <Box sx={{ 
+          width: '100%', 
+          height: { xs: 280, sm: 320 }, 
+          position: 'relative',
+          mt: { xs: 1, sm: 2 },
+          mb: { xs: 2, sm: 0 }
+        }}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
               <CircularProgress />
