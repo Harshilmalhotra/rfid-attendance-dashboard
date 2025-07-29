@@ -30,7 +30,6 @@ import {
 } from "@mui/icons-material";
 import WeeklyOccupancyChart from "@/components/WeeklyOccupancyChart";
 import PeakHoursChart from "@/components/PeakHoursChart";
-import LabUsageGauge from "@/components/LabUsageGauge";
 import PageWrapper from "@/components/PageWrapper";
 
 // Stat card component
@@ -292,13 +291,10 @@ export default function Dashboard() {
               <PeakHoursChart />
             </Box>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
               <WeeklyOccupancyChart />
             </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <LabUsageGauge />
           </Grid>
         </Grid>
       </Box>
