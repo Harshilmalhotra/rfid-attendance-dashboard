@@ -10,7 +10,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Chip,
-  Stack
+  Stack,
+  useMediaQuery,
+  useTheme
 } from '@mui/material'
 import {
   LineChart,
@@ -34,6 +36,8 @@ export default function PeakHoursChart() {
   const [data, setData] = useState(null)
   const [chartType, setChartType] = useState('bar')
   const [timeRange, setTimeRange] = useState(30)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   useEffect(() => {
     fetchPeakHoursData()
@@ -96,7 +100,12 @@ export default function PeakHoursChart() {
 
     const commonProps = {
       data: data.chartData,
-      margin: { top: 5, right: 10, left: 0, bottom: 5 }
+      margin: { 
+        top: 5, 
+        right: isMobile ? 5 : 10, 
+        left: isMobile ? 35 : 40, 
+        bottom: isMobile ? 20 : 5 
+      }
     }
 
     switch (chartType) {
@@ -104,8 +113,17 @@ export default function PeakHoursChart() {
         return (
           <LineChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
+            <XAxis 
+              dataKey="time" 
+              angle={isMobile ? -45 : 0}
+              textAnchor={isMobile ? "end" : "middle"}
+              height={isMobile ? 60 : 30}
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+            />
+            <YAxis 
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+              width={isMobile ? 30 : 40}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line 
@@ -132,8 +150,17 @@ export default function PeakHoursChart() {
         return (
           <AreaChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
+            <XAxis 
+              dataKey="time" 
+              angle={isMobile ? -45 : 0}
+              textAnchor={isMobile ? "end" : "middle"}
+              height={isMobile ? 60 : 30}
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+            />
+            <YAxis 
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+              width={isMobile ? 30 : 40}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Area 
@@ -151,8 +178,17 @@ export default function PeakHoursChart() {
         return (
           <BarChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
+            <XAxis 
+              dataKey="time" 
+              angle={isMobile ? -45 : 0}
+              textAnchor={isMobile ? "end" : "middle"}
+              height={isMobile ? 60 : 30}
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+            />
+            <YAxis 
+              tick={{ fontSize: isMobile ? 10 : 12 }}
+              width={isMobile ? 30 : 40}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Bar 
@@ -167,7 +203,7 @@ export default function PeakHoursChart() {
   }
 
   return (
-    <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 3 }, height: '100%', width: '100%', overflow: 'hidden' }}>
+    <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, height: '100%', width: '100%', overflow: 'visible' }}>
       <Stack spacing={{ xs: 1.5, sm: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 2 } }}>
           <Box sx={{ flex: 1 }}>
@@ -234,7 +270,7 @@ export default function PeakHoursChart() {
           </Alert>
         )}
 
-        <Box sx={{ width: '100%', height: { xs: 280, sm: 300 }, mx: { xs: -1, sm: 0 } }}>
+        <Box sx={{ width: '100%', height: { xs: 300, sm: 320 }, position: 'relative' }}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
               <CircularProgress />

@@ -13,18 +13,6 @@ export async function GET() {
     startDate.setDate(startDate.getDate() - 6)
     startDate.setHours(0, 0, 0, 0)
 
-    // Fetch attendance logs for the past week
-    const { data: logs, error } = await supabase
-      .from('attendance_logs')
-      .select('entry_time, exit_time')
-      .gte('entry_time', startDate.toISOString())
-      .lte('entry_time', endDate.toISOString())
-
-    if (error) {
-      console.error('Error fetching weekly data:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
     // Initialize data structure for each day
     const weekData = []
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -36,35 +24,35 @@ export async function GET() {
       weekData.push({
         day: dayNames[date.getDay()],
         date: date.toISOString().split('T')[0],
-        occupancy: 0,
-        uniqueUsers: new Set()
+        occupancy_count: 0
       })
     }
 
-    // Process logs to calculate daily occupancy
-    logs?.forEach(log => {
-      const entryDate = new Date(log.entry_time)
-      const dayIndex = Math.floor((entryDate - startDate) / (1000 * 60 * 60 * 24))
-      
-      if (dayIndex >= 0 && dayIndex < 7) {
-        weekData[dayIndex].occupancy++
-        // In a real app, you'd track unique users here
+    // Fetch pre-calculated data from lab_occupancy table
+    const { data: occupancyData, error } = await supabase
+      .from('lab_occupancy')
+      .select('date, occupancy_count, unique_visitors')
+      .gte('date', startDate.toISOString().split('T')[0])
+      .lte('date', endDate.toISOString().split('T')[0])
+      .order('date', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching weekly data:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Map the data to match frontend expectations
+    const formattedData = weekData.map(day => {
+      const dayData = occupancyData?.find(d => d.date === day.date)
+      return {
+        date: day.date,
+        occupancy_count: dayData?.unique_visitors || dayData?.occupancy_count || 0,
+        day: day.day
       }
     })
 
-    // Format response
-    const formattedData = weekData.map(day => ({
-      day: day.day,
-      date: day.date,
-      occupancy: day.occupancy,
-      uniqueUsers: day.uniqueUsers.size
-    }))
-
-    return NextResponse.json({
-      weeklyData: formattedData,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
-    })
+    // Return array directly as frontend expects
+    return NextResponse.json(formattedData)
   } catch (error) {
     console.error('Server error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -14,7 +14,7 @@ export const metadata = {
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   icons: {
     icon: "/isd_icon.ico",
-    apple: "/icons/icon-192x192.png",
+    apple: "/logo.png",
   },
   appleWebApp: {
     capable: true,

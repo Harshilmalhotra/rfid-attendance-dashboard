@@ -21,6 +21,7 @@ import {
   Brightness4,
   Brightness7,
   Logout,
+  Login,
   Menu as MenuIcon,
   ChevronLeft,
   ChevronRight,
@@ -42,12 +43,17 @@ const Sidebar = () => {
   const sidebarRef = useRef(null);
   const [open, setOpen] = useState(!isMobile);
 
-  const pages = [
+  const publicPages = [
     { title: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
+  ];
+
+  const protectedPages = [
     { title: "Attendance", icon: <Assignment />, path: "/attendance" },
     { title: "Users", icon: <ManageAccountsIcon />, path: "/users" },
     { title: "Profile", icon: <Person />, path: "/profile" },
   ];
+
+  const pages = user ? [...publicPages, ...protectedPages] : publicPages;
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -63,6 +69,8 @@ const Sidebar = () => {
     const { error } = await signOut();
     if (error) {
       console.error("Logout error:", error.message);
+    } else {
+      router.push('/dashboard');
     }
   };
 
@@ -344,45 +352,87 @@ const Sidebar = () => {
               </ListItem>
             </Tooltip>
 
-            <Tooltip title={!open ? "Logout" : ""} placement="right" arrow>
-              <ListItem disablePadding sx={{ display: 'block' }}>
-                <ListItemButton
-                  onClick={handleLogout}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    borderRadius: 2,
-                    mx: 1,
-                    color: 'error.main',
-                    '&:hover': {
-                      backgroundColor: alpha(mode === 'dark' ? '#fff' : '#000', 0.04),
-                    },
-                  }}
-                >
-                  <ListItemIcon
+            {user ? (
+              <Tooltip title={!open ? "Logout" : ""} placement="right" arrow>
+                <ListItem disablePadding sx={{ display: 'block' }}>
+                  <ListItemButton
+                    onClick={handleLogout}
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: 'inherit',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      borderRadius: 2,
+                      mx: 1,
+                      color: 'error.main',
+                      '&:hover': {
+                        backgroundColor: alpha(mode === 'dark' ? '#fff' : '#000', 0.04),
+                      },
                     }}
                   >
-                    <Logout />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary="Logout" 
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      '& .MuiTypography-root': {
-                        fontSize: '0.875rem',
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
                         color: 'inherit',
+                      }}
+                    >
+                      <Logout />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary="Logout" 
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        '& .MuiTypography-root': {
+                          fontSize: '0.875rem',
+                          color: 'inherit',
+                        },
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Tooltip>
+            ) : (
+              <Tooltip title={!open ? "Login" : ""} placement="right" arrow>
+                <ListItem disablePadding sx={{ display: 'block' }}>
+                  <ListItemButton
+                    onClick={() => router.push('/auth')}
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      borderRadius: 2,
+                      mx: 1,
+                      color: 'primary.main',
+                      '&:hover': {
+                        backgroundColor: alpha(mode === 'dark' ? '#fff' : '#000', 0.04),
                       },
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
-            </Tooltip>
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: 'inherit',
+                      }}
+                    >
+                      <Login />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary="Login" 
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        '& .MuiTypography-root': {
+                          fontSize: '0.875rem',
+                          color: 'inherit',
+                        },
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Tooltip>
+            )}
           </Box>
         </Box>
       </Drawer>

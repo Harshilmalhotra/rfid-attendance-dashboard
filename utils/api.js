@@ -10,13 +10,18 @@ export const fetchCurrentOccupants = async () => {
 
 
 export const fetchWeeklyOccupancy = async () => {
-  const response = await axios.get(`${API_URL}/analytics/weekly`);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_URL}/analytics/weekly`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching weekly occupancy:', error);
+    throw error;
+  }
 };
 
 
 export const fetchRushHours = async () => {
-  const response = await axios.get(`${API_URL}/analytics/rush-hours`);
+  const response = await axios.get(`${API_URL}/analytics/rushhours`);
   return response.data;
 };
 

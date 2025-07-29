@@ -36,8 +36,11 @@ import {
 import { useAuth } from '@/context/AuthContext'
 import { useColorMode } from '@/context/ColorModeContext'
 
-const navigationItems = [
+const publicNavigationItems = [
   { label: 'Dashboard', value: '/dashboard', icon: <Dashboard /> },
+]
+
+const protectedNavigationItems = [
   { label: 'Attendance', value: '/attendance', icon: <Assignment /> },
   { label: 'Users', value: '/users', icon: <People /> },
   { label: 'Profile', value: '/profile', icon: <Person /> },
@@ -51,6 +54,8 @@ export default function MobileNavigation() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  
+  const navigationItems = user ? [...publicNavigationItems, ...protectedNavigationItems] : publicNavigationItems
   
   // Only render on mobile screens
   if (!isMobile) {
@@ -158,10 +163,17 @@ export default function MobileNavigation() {
               <ListItemIcon><Settings /></ListItemIcon>
               <ListItemText primary="Settings" />
             </ListItem>
-            <ListItem button onClick={signOut}>
-              <ListItemIcon><ExitToApp /></ListItemIcon>
-              <ListItemText primary="Sign Out" />
-            </ListItem>
+            {user ? (
+              <ListItem button onClick={signOut}>
+                <ListItemIcon><ExitToApp /></ListItemIcon>
+                <ListItemText primary="Sign Out" />
+              </ListItem>
+            ) : (
+              <ListItem button onClick={() => { router.push('/auth'); setDrawerOpen(false); }}>
+                <ListItemIcon><ExitToApp /></ListItemIcon>
+                <ListItemText primary="Sign In" />
+              </ListItem>
+            )}
           </List>
         </Box>
       </SwipeableDrawer>
