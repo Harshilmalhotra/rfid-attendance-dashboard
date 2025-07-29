@@ -17,7 +17,9 @@ import {
   IconButton,
   Typography,
   Avatar,
-  Divider
+  Divider,
+  useMediaQuery,
+  useTheme
 } from '@mui/material'
 import {
   Dashboard,
@@ -47,9 +49,11 @@ export default function MobileNavigation() {
   const { user, signOut } = useAuth()
   const { mode, toggleColorMode } = useColorMode()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
-  // Only show on mobile screens
-  if (typeof window !== 'undefined' && window.innerWidth > 768) {
+  // Only render on mobile screens
+  if (!isMobile) {
     return null
   }
 
@@ -57,7 +61,7 @@ export default function MobileNavigation() {
     router.push(path)
   }
 
-  const currentPath = navigationItems.find(item => pathname.includes(item.value))?.value || '/dashboard'
+  const currentPath = navigationItems.find(item => pathname === item.value)?.value || '/dashboard'
 
   return (
     <>
@@ -133,7 +137,7 @@ export default function MobileNavigation() {
                   handleNavigation(item.value)
                   setDrawerOpen(false)
                 }}
-                selected={pathname.includes(item.value)}
+                selected={pathname === item.value}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} />

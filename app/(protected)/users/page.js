@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Paper,
@@ -53,6 +53,7 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState(null)
   const [error, setError] = useState('')
   const [unassignedRfids, setUnassignedRfids] = useState([])
+  const [searchDebounce, setSearchDebounce] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,17 +63,28 @@ export default function Users() {
     role: 'member',
   })
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounce(searchTerm)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
   useEffect(() => {
     fetchUsers()
+  }, [searchDebounce, roleFilter]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     fetchUnassignedRfids()
-  }, [searchTerm, roleFilter]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUsers = async () => {
     setLoading(true)
     setError('')
     try {
       const params = new URLSearchParams()
-      if (searchTerm) params.append('search', searchTerm)
+      if (searchDebounce) params.append('search', searchDebounce)
       if (roleFilter !== 'all') params.append('role', roleFilter)
       
       const response = await fetch(`/api/users?${params}`)
