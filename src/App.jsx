@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import Sidebar from "./components/Sidebar";
 import PageWrapper from "./components/PageWrapper";
 import Footer from "./components/Footer";
+import MigrationNotice from "./components/MigrationNotice";
 
 // Helper for timestamped logs
 const logEvent = (message, data = null) => {
@@ -183,6 +184,7 @@ function App() {
 
   return (
     <Router>
+      <MigrationNotice />
       <AnimatedRoutes session={session} />
     </Router>
   );
