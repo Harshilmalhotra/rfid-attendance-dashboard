@@ -28,10 +28,8 @@ import {
   Refresh,
   CheckCircle
 } from "@mui/icons-material";
-import OccupantsCard from "@/components/OccupantsCard";
 import WeeklyOccupancyChart from "@/components/WeeklyOccupancyChart";
 import PeakHoursChart from "@/components/PeakHoursChart";
-import TopUsersPieChart from "@/components/TopUsersPieChart";
 import LabUsageGauge from "@/components/LabUsageGauge";
 import PageWrapper from "@/components/PageWrapper";
 
@@ -294,20 +292,12 @@ export default function Dashboard() {
               <PeakHoursChart />
             </Box>
           </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={12} md={6}>
             <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
               <WeeklyOccupancyChart />
             </Box>
           </Grid>
-          <Grid item xs={12} lg={8}>
-            <OccupantsCard />
-          </Grid>
-          <Grid item xs={12} lg={4}>
-            <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
-              <TopUsersPieChart />
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <LabUsageGauge />
           </Grid>
         </Grid>

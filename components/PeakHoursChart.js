@@ -37,7 +37,7 @@ export default function PeakHoursChart() {
 
   useEffect(() => {
     fetchPeakHoursData()
-  }, [timeRange])
+  }, [timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchPeakHoursData = async () => {
     setLoading(true)

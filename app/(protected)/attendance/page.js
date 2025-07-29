@@ -90,7 +90,7 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetchAttendance()
-  }, [page, rowsPerPage])
+  }, [page, rowsPerPage]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = () => {
     setPage(0)

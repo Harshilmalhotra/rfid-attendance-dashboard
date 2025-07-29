@@ -186,8 +186,8 @@ export default function InstallPrompt() {
             </Typography>
             <Box component="ol" sx={{ pl: 2 }}>
               <li>Tap the Share button <Box component="span" sx={{ fontFamily: 'monospace' }}>⎋</Box> in Safari</li>
-              <li>Scroll down and tap "Add to Home Screen"</li>
-              <li>Tap "Add" to confirm</li>
+              <li>Scroll down and tap &ldquo;Add to Home Screen&rdquo;</li>
+              <li>Tap &ldquo;Add&rdquo; to confirm</li>
             </Box>
             <Alert severity="info" sx={{ mt: 2 }}>
               This app works best when added to your home screen!

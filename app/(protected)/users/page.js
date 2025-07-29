@@ -65,7 +65,7 @@ export default function Users() {
   useEffect(() => {
     fetchUsers()
     fetchUnassignedRfids()
-  }, [searchTerm, roleFilter])
+  }, [searchTerm, roleFilter]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUsers = async () => {
     setLoading(true)
