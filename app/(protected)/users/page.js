@@ -47,6 +47,7 @@ export default function Users() {
   const [openDialog, setOpenDialog] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [error, setError] = useState('')
+  const [unassignedRfids, setUnassignedRfids] = useState([])
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -58,6 +59,7 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers()
+    fetchUnassignedRfids()
   }, [searchTerm, roleFilter])
 
   const fetchUsers = async () => {
@@ -81,6 +83,21 @@ export default function Users() {
       console.error('Error fetching users:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchUnassignedRfids = async () => {
+    try {
+      const response = await fetch('/api/users/unassigned-rfids')
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch unassigned RFIDs')
+      }
+      
+      setUnassignedRfids(data.rfids)
+    } catch (error) {
+      console.error('Error fetching unassigned RFIDs:', error)
     }
   }
 
@@ -152,6 +169,7 @@ export default function Users() {
       
       setOpenDialog(false)
       fetchUsers()
+      fetchUnassignedRfids()
     } catch (error) {
       setError(error.message)
       console.error('Error saving user:', error)
@@ -245,8 +263,15 @@ export default function Users() {
       field: 'created_at',
       headerName: 'Joined',
       width: 120,
-      valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString()
+      renderCell: (params) => {
+        if (!params.value) return '-'
+        const date = new Date(params.value)
+        if (isNaN(date.getTime())) return '-'
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })
       },
     },
     {
@@ -370,13 +395,32 @@ export default function Users() {
                 onChange={(e) => setFormData({ ...formData, reg_number: e.target.value })}
                 fullWidth
               />
-              <TextField
-                label="RFID UID"
-                value={formData.rfid_uid}
-                onChange={(e) => setFormData({ ...formData, rfid_uid: e.target.value })}
-                fullWidth
-                required
-              />
+              {!selectedUser && unassignedRfids.length > 0 ? (
+                <FormControl fullWidth required>
+                  <InputLabel>RFID UID</InputLabel>
+                  <Select
+                    value={formData.rfid_uid}
+                    onChange={(e) => setFormData({ ...formData, rfid_uid: e.target.value })}
+                    label="RFID UID"
+                  >
+                    <MenuItem value="">Manual Entry</MenuItem>
+                    {unassignedRfids.map((rfid) => (
+                      <MenuItem key={rfid} value={rfid}>
+                        {rfid}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : (
+                <TextField
+                  label="RFID UID"
+                  value={formData.rfid_uid}
+                  onChange={(e) => setFormData({ ...formData, rfid_uid: e.target.value })}
+                  fullWidth
+                  required
+                  disabled={selectedUser ? true : false}
+                />
+              )}
               <TextField
                 label="Phone Number"
                 type="tel"
