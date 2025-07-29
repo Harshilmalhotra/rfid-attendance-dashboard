@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     console.log('Testing database connection...')
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Test 1: Simple count query
     const { count: userCount, error: countError } = await supabase

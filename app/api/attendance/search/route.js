@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Get query parameters
     const { searchParams } = new URL(request.url)

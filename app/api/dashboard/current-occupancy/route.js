@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     
     // Get today's date range
     const today = new Date()
