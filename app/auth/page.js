@@ -19,8 +19,9 @@ import {
   PersonAdd,
 } from "@mui/icons-material";
 
-export default function LoginPage({ searchParams }) {
-  const message = searchParams?.message
+export default async function LoginPage({ searchParams }) {
+  const params = await searchParams
+  const message = params?.message
 
   return (
     <Container component="main" maxWidth="xs">
@@ -91,6 +92,7 @@ export default function LoginPage({ searchParams }) {
 
                   <Stack direction="row" spacing={2}>
                     <Button
+                      type="submit"
                       formAction={login}
                       fullWidth
                       variant="contained"
@@ -102,6 +104,7 @@ export default function LoginPage({ searchParams }) {
                     </Button>
                     
                     <Button
+                      type="submit"
                       formAction={signup}
                       fullWidth
                       variant="outlined"
