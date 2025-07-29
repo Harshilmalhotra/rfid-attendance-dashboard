@@ -55,7 +55,10 @@ export default async function LoginPage({ searchParams }) {
         <Card elevation={3} sx={{ width: '100%' }}>
           <CardContent sx={{ p: 4 }}>
             {message && (
-              <Alert severity="info" sx={{ mb: 3 }}>
+              <Alert 
+                severity={message.includes('error') || message.includes('Invalid') ? "error" : "info"} 
+                sx={{ mb: 3 }}
+              >
                 {message}
               </Alert>
             )}
