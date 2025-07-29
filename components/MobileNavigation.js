@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
   BottomNavigation,
@@ -31,10 +31,14 @@ import {
   ExitToApp,
   Settings,
   Brightness4,
-  Brightness7
+  Brightness7,
+  Notifications,
+  Campaign,
+  AdminPanelSettings
 } from '@mui/icons-material'
 import { useAuth } from '@/context/AuthContext'
 import { useColorMode } from '@/context/ColorModeContext'
+import { supabase } from '@/lib/supabase'
 
 const publicNavigationItems = [
   { label: 'Dashboard', value: '/dashboard', icon: <Dashboard /> },
@@ -44,6 +48,7 @@ const protectedNavigationItems = [
   { label: 'Attendance', value: '/attendance', icon: <Assignment /> },
   { label: 'Users', value: '/users', icon: <People /> },
   { label: 'Profile', value: '/profile', icon: <Person /> },
+  { label: 'Notifications', value: '/notifications', icon: <Notifications /> },
 ]
 
 export default function MobileNavigation() {
@@ -52,10 +57,43 @@ export default function MobileNavigation() {
   const { user, signOut } = useAuth()
   const { mode, toggleColorMode } = useColorMode()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
-  const navigationItems = user ? [...publicNavigationItems, ...protectedNavigationItems] : publicNavigationItems
+  useEffect(() => {
+    // Check if user is admin based on email
+    const checkAdminStatus = async () => {
+      if (user?.email) {
+        try {
+          const { data, error } = await supabase
+            .from('admin')
+            .select('email')
+            .eq('email', user.email.toLowerCase())
+            .single()
+          
+          if (!error && data) {
+            setIsAdmin(true)
+          }
+        } catch (error) {
+          // Not an admin or error checking
+          setIsAdmin(false)
+        }
+      }
+    }
+    
+    checkAdminStatus()
+  }, [user])
+  
+  // Add broadcast and admin management pages for admins only
+  const adminNavigationItems = isAdmin ? [
+    { label: 'Broadcast', value: '/broadcast', icon: <Campaign /> },
+    { label: 'Admin Management', value: '/admin-management', icon: <AdminPanelSettings /> },
+  ] : []
+  
+  const navigationItems = user 
+    ? [...publicNavigationItems, ...protectedNavigationItems, ...adminNavigationItems] 
+    : publicNavigationItems
   
   // Only render on mobile screens
   if (!isMobile) {

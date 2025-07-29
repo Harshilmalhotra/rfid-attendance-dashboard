@@ -114,31 +114,50 @@ async function syncAttendance() {
 
 // Push notifications
 self.addEventListener('push', (event) => {
+  if (!(self.Notification && self.Notification.permission === 'granted')) {
+    return;
+  }
+
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Lab Attendance Update';
   const options = {
-    body: event.data ? event.data.text() : 'New notification',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
+    body: data.body || 'You have a new notification',
+    icon: '/logo.png',
+    badge: '/logo.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: data.id || 1,
+      url: data.url || '/dashboard',
+      type: data.type,
+      ...data.data
     },
-    actions: [
+    actions: data.actions || [
       {
         action: 'view',
-        title: 'View',
-        icon: '/icons/checkmark.png'
+        title: 'View'
       },
       {
-        action: 'close',
-        title: 'Close',
-        icon: '/icons/xmark.png'
+        action: 'dismiss',
+        title: 'Dismiss'
       }
-    ]
+    ],
+    tag: data.tag || 'lab-notification',
+    renotify: true,
+    requireInteraction: data.requireInteraction || false,
   };
 
+  // Add custom styling based on notification type
+  if (data.type === 'check_in') {
+    options.icon = '/logo.png';
+    options.badge = '/logo.png';
+  } else if (data.type === 'vip_entry') {
+    options.requireInteraction = true;
+    options.vibrate = [200, 100, 200];
+  }
+
   event.waitUntil(
-    self.registration.showNotification('Lab Attendance Update', options)
+    self.registration.showNotification(title, options)
   );
 });
 
@@ -146,9 +165,29 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  if (event.action === 'view') {
-    event.waitUntil(
-      clients.openWindow('/dashboard')
-    );
+  if (event.action === 'dismiss') {
+    return;
   }
+
+  const urlToOpen = event.notification.data.url || '/dashboard';
+
+  event.waitUntil(
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    }).then((windowClients) => {
+      // Check if there is already a window/tab open with the target URL
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url.includes('/dashboard') && 'focus' in client) {
+          client.navigate(urlToOpen);
+          return client.focus();
+        }
+      }
+      // If not, then open the target URL in a new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
 });

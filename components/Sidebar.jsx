@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { supabase } from '@/lib/supabase';
 import {
   Box,
   Drawer,
@@ -28,6 +29,9 @@ import {
   Dashboard,
   Person,
   Assignment,
+  Notifications,
+  Campaign,
+  AdminPanelSettings,
 } from "@mui/icons-material";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import { useColorMode } from "@/context/ColorModeContext";
@@ -42,6 +46,7 @@ const Sidebar = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const sidebarRef = useRef(null);
   const [open, setOpen] = useState(!isMobile);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const publicPages = [
     { title: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
@@ -51,9 +56,40 @@ const Sidebar = () => {
     { title: "Attendance", icon: <Assignment />, path: "/attendance" },
     { title: "Users", icon: <ManageAccountsIcon />, path: "/users" },
     { title: "Profile", icon: <Person />, path: "/profile" },
+    { title: "Notifications", icon: <Notifications />, path: "/notifications" },
   ];
 
-  const pages = user ? [...publicPages, ...protectedPages] : publicPages;
+  // Add broadcast and admin management pages for admins only
+  const adminPages = isAdmin ? [
+    { title: "Broadcast", icon: <Campaign />, path: "/broadcast" },
+    { title: "Admin Management", icon: <AdminPanelSettings />, path: "/admin-management" },
+  ] : [];
+
+  const pages = user ? [...publicPages, ...protectedPages, ...adminPages] : publicPages;
+
+  useEffect(() => {
+    // Check if user is admin based on email
+    const checkAdminStatus = async () => {
+      if (user?.email) {
+        try {
+          const { data, error } = await supabase
+            .from('admin')
+            .select('email')
+            .eq('email', user.email.toLowerCase())
+            .single();
+          
+          if (!error && data) {
+            setIsAdmin(true);
+          }
+        } catch (error) {
+          // Not an admin or error checking
+          setIsAdmin(false);
+        }
+      }
+    };
+    
+    checkAdminStatus();
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {

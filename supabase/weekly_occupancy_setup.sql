@@ -6,6 +6,20 @@
 ALTER TABLE public.lab_occupancy 
 ADD COLUMN IF NOT EXISTS unique_visitors integer DEFAULT 0;
 
+-- Step 1b: Add unique constraint on date column if it doesn't exist
+-- First check if constraint exists, if not add it
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'lab_occupancy_date_unique' 
+        AND conrelid = 'lab_occupancy'::regclass
+    ) THEN
+        ALTER TABLE public.lab_occupancy 
+        ADD CONSTRAINT lab_occupancy_date_unique UNIQUE (date);
+    END IF;
+END $$;
+
 -- Step 2: Create function to calculate daily occupancy
 CREATE OR REPLACE FUNCTION calculate_daily_occupancy(target_date date)
 RETURNS void AS $$
@@ -44,13 +58,19 @@ BEGIN
     FROM hourly_counts;
 
     -- Insert or update the daily occupancy
-    INSERT INTO lab_occupancy (date, occupancy_count, unique_visitors, peak_hour)
-    VALUES (target_date, total_entries, visitor_count, peak_hour_time)
-    ON CONFLICT (date) 
-    DO UPDATE SET 
-        occupancy_count = EXCLUDED.occupancy_count,
-        unique_visitors = EXCLUDED.unique_visitors,
-        peak_hour = EXCLUDED.peak_hour;
+    -- First try to update
+    UPDATE lab_occupancy 
+    SET 
+        occupancy_count = total_entries,
+        unique_visitors = visitor_count,
+        peak_hour = peak_hour_time
+    WHERE date = target_date;
+    
+    -- If no rows were updated, insert new row
+    IF NOT FOUND THEN
+        INSERT INTO lab_occupancy (date, occupancy_count, unique_visitors, peak_hour)
+        VALUES (target_date, total_entries, visitor_count, peak_hour_time);
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
