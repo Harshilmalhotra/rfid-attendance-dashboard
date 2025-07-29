@@ -96,7 +96,7 @@ export default function PeakHoursChart() {
 
     const commonProps = {
       data: data.chartData,
-      margin: { top: 5, right: 30, left: 20, bottom: 5 }
+      margin: { top: 5, right: 10, left: 0, bottom: 5 }
     }
 
     switch (chartType) {
@@ -167,10 +167,10 @@ export default function PeakHoursChart() {
   }
 
   return (
-    <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, height: '100%' }}>
+    <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 3 }, height: '100%', width: '100%', overflow: 'hidden' }}>
       <Stack spacing={{ xs: 1.5, sm: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
-          <Box>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 1.5, sm: 2 } }}>
+          <Box sx={{ flex: 1 }}>
             <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }} gutterBottom>
               Peak Hours Analysis
             </Typography>
@@ -190,7 +190,7 @@ export default function PeakHoursChart() {
             )}
           </Box>
           
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' } }}>
             <ToggleButtonGroup
               value={timeRange}
               exclusive
@@ -234,7 +234,7 @@ export default function PeakHoursChart() {
           </Alert>
         )}
 
-        <Box sx={{ width: '100%', height: { xs: 250, sm: 300 } }}>
+        <Box sx={{ width: '100%', height: { xs: 280, sm: 300 }, mx: { xs: -1, sm: 0 } }}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
               <CircularProgress />

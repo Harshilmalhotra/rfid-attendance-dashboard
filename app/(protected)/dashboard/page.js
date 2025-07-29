@@ -74,6 +74,7 @@ const StatCard = ({ title, value, icon, loading, color = "primary.main", subtitl
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const [occupancyLoading, setOccupancyLoading] = useState(true);
   const [currentOccupancy, setCurrentOccupancy] = useState(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -82,21 +83,32 @@ export default function Dashboard() {
     currentInLab: 0,
   });
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    fetchDashboardStats();
-    fetchCurrentOccupancy();
+    // Add a small delay to ensure auth is ready
+    const initTimeout = setTimeout(() => {
+      fetchDashboardStats();
+      fetchCurrentOccupancy();
+      setInitialized(true);
+    }, 100);
     
     // Refresh current occupancy every 30 seconds
     const interval = setInterval(() => {
-      fetchCurrentOccupancy();
+      if (initialized) {
+        fetchCurrentOccupancy();
+      }
     }, 30000);
     
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearTimeout(initTimeout);
+      clearInterval(interval);
+    };
+  }, [initialized]);
 
   const fetchCurrentOccupancy = async () => {
     try {
+      setOccupancyLoading(true);
       const response = await fetch('/api/dashboard/current-occupancy');
       const data = await response.json();
       
@@ -109,6 +121,8 @@ export default function Dashboard() {
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching current occupancy:', error);
+    } finally {
+      setOccupancyLoading(false);
     }
   };
 
@@ -159,14 +173,10 @@ export default function Dashboard() {
     }
   };
 
-  const formatDuration = (duration) => {
-    // Duration is already formatted from the API
-    return duration;
-  };
 
   return (
     <PageWrapper>
-      <Box sx={{ p: { xs: 2, sm: 3 }, pb: { xs: 10, md: 3 } }}>
+      <Box sx={{ p: { xs: 1, sm: 3 }, pb: { xs: 10, md: 3 } }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 3, gap: 1 }}>
           <Typography variant="h4" sx={{ fontSize: { xs: '1.75rem', sm: '2rem' } }}>
             Dashboard
@@ -226,7 +236,23 @@ export default function Dashboard() {
         </Grid>
 
         {/* Current Occupants List */}
-        {currentOccupancy && currentOccupancy.currentlyInLab.length > 0 && (
+        {occupancyLoading ? (
+          <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+            <Skeleton variant="text" width={200} height={32} sx={{ mb: 1 }} />
+            <Divider sx={{ mb: 2 }} />
+            <Box>
+              {[1, 2, 3].map((item) => (
+                <Box key={item} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                  <Skeleton variant="circular" width={40} height={40} />
+                  <Box sx={{ flex: 1 }}>
+                    <Skeleton variant="text" width="60%" />
+                    <Skeleton variant="text" width="40%" />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Paper>
+        ) : currentOccupancy && currentOccupancy.currentlyInLab.length > 0 ? (
           <Paper elevation={2} sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
             <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }} gutterBottom>
               Currently in Lab ({currentOccupancy.stats.currentOccupancy} people)
@@ -272,28 +298,39 @@ export default function Dashboard() {
               ))}
             </List>
           </Paper>
-        )}
-
-        {/* Empty State */}
-        {currentOccupancy && currentOccupancy.currentlyInLab.length === 0 && (
+        ) : currentOccupancy && currentOccupancy.currentlyInLab.length === 0 ? (
           <Paper elevation={2} sx={{ p: { xs: 3, sm: 4 }, mb: 3, textAlign: 'center' }}>
             <Person sx={{ fontSize: { xs: 36, sm: 48 }, color: 'text.secondary', mb: 2 }} />
             <Typography variant="h6" color="text.secondary">
               No one is currently in the lab
             </Typography>
           </Paper>
-        )}
+        ) : null}
 
         {/* Charts Grid */}
         <Grid container spacing={{ xs: 2, sm: 3 }}>
           <Grid item xs={12}>
             <Box sx={{ height: { xs: 350, sm: 400, md: 'auto' } }}>
-              <PeakHoursChart />
+              {loading ? (
+                <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
+                  <Skeleton variant="text" width={200} height={32} sx={{ mb: 2 }} />
+                  <Skeleton variant="rectangular" width="100%" height="80%" />
+                </Paper>
+              ) : (
+                <PeakHoursChart />
+              )}
             </Box>
           </Grid>
           <Grid item xs={12}>
             <Box sx={{ height: { xs: 300, sm: 350, md: 'auto' } }}>
-              <WeeklyOccupancyChart />
+              {loading ? (
+                <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
+                  <Skeleton variant="text" width={200} height={32} sx={{ mb: 2 }} />
+                  <Skeleton variant="rectangular" width="100%" height="80%" />
+                </Paper>
+              ) : (
+                <WeeklyOccupancyChart />
+              )}
             </Box>
           </Grid>
         </Grid>

@@ -54,7 +54,9 @@ export default function ProtectedLayout({ children }) {
     <>
       <SessionRefresh />
       <MigrationNotice />
-      <MobileNavigation />
+      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <MobileNavigation />
+      </Box>
       <InstallPrompt />
       <div className="flex flex-col min-h-screen">
         <div className="flex-grow flex">

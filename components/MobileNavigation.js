@@ -27,9 +27,12 @@ import {
   Menu as MenuIcon,
   Close,
   ExitToApp,
-  Settings
+  Settings,
+  Brightness4,
+  Brightness7
 } from '@mui/icons-material'
 import { useAuth } from '@/context/AuthContext'
+import { useColorMode } from '@/context/ColorModeContext'
 
 const navigationItems = [
   { label: 'Dashboard', value: '/dashboard', icon: <Dashboard /> },
@@ -42,6 +45,7 @@ export default function MobileNavigation() {
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut } = useAuth()
+  const { mode, toggleColorMode } = useColorMode()
   const [drawerOpen, setDrawerOpen] = useState(false)
   
   // Only show on mobile screens
@@ -78,6 +82,13 @@ export default function MobileNavigation() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Lab Attendance
           </Typography>
+          <IconButton
+            color="inherit"
+            onClick={toggleColorMode}
+            sx={{ mr: 1 }}
+          >
+            {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+          </IconButton>
           <Avatar sx={{ width: 32, height: 32 }}>
             {user?.email?.[0]?.toUpperCase() || 'U'}
           </Avatar>
@@ -133,6 +144,12 @@ export default function MobileNavigation() {
           <Divider />
           
           <List>
+            <ListItem button onClick={toggleColorMode}>
+              <ListItemIcon>
+                {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+              </ListItemIcon>
+              <ListItemText primary={mode === 'light' ? 'Dark Mode' : 'Light Mode'} />
+            </ListItem>
             <ListItem button>
               <ListItemIcon><Settings /></ListItemIcon>
               <ListItemText primary="Settings" />
