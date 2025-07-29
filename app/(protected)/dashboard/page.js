@@ -30,7 +30,6 @@ import {
 } from "@mui/icons-material";
 import OccupantsCard from "@/components/OccupantsCard";
 import WeeklyOccupancyChart from "@/components/WeeklyOccupancyChart";
-import RushHoursChart from "@/components/RushHoursChart";
 import PeakHoursChart from "@/components/PeakHoursChart";
 import TopUsersPieChart from "@/components/TopUsersPieChart";
 import LabUsageGauge from "@/components/LabUsageGauge";
@@ -295,9 +294,6 @@ export default function Dashboard() {
           </Grid>
           <Grid item xs={12} md={6}>
             <WeeklyOccupancyChart />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <RushHoursChart />
           </Grid>
           <Grid item xs={12} md={8}>
             <OccupantsCard />
