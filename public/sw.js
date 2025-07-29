@@ -122,8 +122,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Lab Attendance Update';
   const options = {
     body: data.body || 'You have a new notification',
-    icon: '/logo.png',
-    badge: '/logo.png',
+    icon: '/icon-192x192.png',
+    badge: '/icon-96x96.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -148,12 +148,21 @@ self.addEventListener('push', (event) => {
   };
 
   // Add custom styling based on notification type
-  if (data.type === 'check_in') {
-    options.icon = '/logo.png';
-    options.badge = '/logo.png';
-  } else if (data.type === 'vip_entry') {
+  if (data.type === 'user_check_in') {
+    options.icon = '/icon-192x192.png';
+    options.badge = '/icon-96x96.png';
+    options.tag = 'check-in';
+  } else if (data.type === 'user_check_out') {
+    options.icon = '/icon-192x192.png';
+    options.badge = '/icon-96x96.png';
+    options.tag = 'check-out';
+  } else if (data.type === 'lab_capacity') {
     options.requireInteraction = true;
     options.vibrate = [200, 100, 200];
+    options.tag = 'capacity-alert';
+  } else if (data.type === 'daily_summary') {
+    options.tag = 'daily-summary';
+    options.requireInteraction = false;
   }
 
   event.waitUntil(

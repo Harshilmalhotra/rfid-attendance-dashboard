@@ -8,23 +8,16 @@ import {
   Switch,
   FormGroup,
   FormControlLabel,
-  Divider,
   Button,
   Alert,
-  Chip,
   Stack,
   Card,
   CardContent,
-  IconButton,
-  Tooltip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  CircularProgress,
+  Chip,
 } from '@mui/material'
 import {
   Notifications,
@@ -32,59 +25,58 @@ import {
   ExpandMore,
   Info,
   CheckCircle,
-  ExitToApp,
+  Login,
+  Logout,
   Schedule,
   TrendingUp,
   Warning,
-  People,
-  PersonAdd,
+  Group,
 } from '@mui/icons-material'
 import PageWrapper from '@/components/PageWrapper'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabase'
 
 const notificationTypes = [
   {
-    id: 'check_in',
-    title: 'Check-ins',
-    description: 'Get notified when someone enters the lab',
-    icon: <CheckCircle color="success" />,
-    category: 'real-time'
+    id: 'user_check_in',
+    title: 'User Check-ins',
+    description: 'Get notified when users enter the lab',
+    icon: <Login color="success" />,
+    category: 'activity'
   },
   {
-    id: 'check_out',
-    title: 'Check-outs',
-    description: 'Get notified when someone leaves the lab',
-    icon: <ExitToApp color="error" />,
-    category: 'real-time'
+    id: 'user_check_out',
+    title: 'User Check-outs',
+    description: 'Get notified when users leave the lab',
+    icon: <Logout color="error" />,
+    category: 'activity'
   },
   {
-    id: 'vip_entry',
-    title: 'VIP Entries',
-    description: 'Special alerts for admin and lead entries',
-    icon: <PersonAdd color="warning" />,
-    category: 'real-time'
-  },
-  {
-    id: 'hourly_summary',
-    title: 'Hourly Updates',
-    description: 'Hourly summary of lab occupancy',
-    icon: <Schedule color="info" />,
-    category: 'scheduled'
+    id: 'lab_capacity',
+    title: 'Lab Capacity',
+    description: 'Get notified when lab reaches certain capacity levels',
+    icon: <Group color="warning" />,
+    category: 'activity'
   },
   {
     id: 'daily_summary',
     title: 'Daily Summary',
-    description: 'Daily statistics and insights',
+    description: 'Daily statistics and usage report',
     icon: <TrendingUp color="primary" />,
     category: 'scheduled'
   },
   {
-    id: 'capacity_alert',
-    title: 'Capacity Alerts',
-    description: 'Alerts when lab reaches capacity threshold',
+    id: 'weekly_report',
+    title: 'Weekly Report',
+    description: 'Weekly attendance and activity summary',
+    icon: <Schedule color="info" />,
+    category: 'scheduled'
+  },
+  {
+    id: 'maintenance_reminder',
+    title: 'Maintenance Reminders',
+    description: 'Reminders for system maintenance and updates',
     icon: <Warning color="warning" />,
-    category: 'alerts'
+    category: 'system'
   },
 ]
 
@@ -97,55 +89,50 @@ export default function NotificationsPage() {
   const [pushSupported, setPushSupported] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  
-  // Debug: Log user info
-  useEffect(() => {
-    console.log('Current user:', user)
-    console.log('User ID:', user?.id)
-  }, [user])
 
   useEffect(() => {
     checkPushSupport()
     if (user?.id) {
       loadPreferences()
     }
-  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user])
 
-  const checkPushSupport = () => {
+  const checkPushSupport = async () => {
     if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
       setPushSupported(true)
       setPushEnabled(Notification.permission === 'granted')
+      
+      // Check if service worker is registered
+      const registration = await navigator.serviceWorker.getRegistration()
+      if (!registration) {
+        // Register service worker if not already registered
+        try {
+          await navigator.serviceWorker.register('/sw.js')
+        } catch (error) {
+          console.error('Service worker registration failed:', error)
+        }
+      }
     }
   }
 
   const loadPreferences = async () => {
     try {
-      if (!user?.id) {
-        console.error('No user ID available')
-        setError('User not authenticated')
-        setLoading(false)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('notification_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-
-      if (error) {
-        console.error('Supabase error:', error)
-        throw error
+      const response = await fetch('/api/notifications/preferences')
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load preferences')
       }
 
       // Convert array to object for easier access
       const prefsObj = {}
-      data?.forEach(pref => {
+      data.preferences?.forEach(pref => {
         prefsObj[pref.notification_type] = pref
       })
       setPreferences(prefsObj)
     } catch (error) {
       console.error('Error loading preferences:', error)
-      setError(`Failed to load notification preferences: ${error.message}`)
+      setError('Failed to load notification preferences')
     } finally {
       setLoading(false)
     }
@@ -167,20 +154,26 @@ export default function NotificationsPage() {
       // Subscribe to push notifications
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        applicationServerKey: urlBase64ToUint8Array(
+          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BKd0bWccZHe6OdJp_gYV6Xz_kKUe5wZBN1Ad7OGhLZnXjgJ3bzaJrqnFt9AXtfsVc7d9ASCRAMKmVfAqNqUQwqw'
+        )
       })
 
-      // Save subscription to database
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: user?.id,
-          subscription_data: subscription.toJSON(),
+      // Save subscription to server
+      const response = await fetch('/api/notifications/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscription: subscription.toJSON(),
           device_name: navigator.userAgent,
-          browser_name: getBrowserName()
-        })
+        }),
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error('Failed to save subscription')
+      }
 
       setPushEnabled(true)
       setSuccess('Push notifications enabled successfully!')
@@ -190,76 +183,34 @@ export default function NotificationsPage() {
     }
   }
 
-  const getBrowserName = () => {
-    const agent = navigator.userAgent
-    if (agent.includes('Chrome')) return 'Chrome'
-    if (agent.includes('Firefox')) return 'Firefox'
-    if (agent.includes('Safari')) return 'Safari'
-    if (agent.includes('Edge')) return 'Edge'
-    return 'Unknown'
-  }
-
   const toggleNotification = async (type, enabled) => {
     setSaving(true)
     setError('')
     setSuccess('')
 
     try {
-      if (!user?.id) {
-        throw new Error('User not authenticated')
-      }
+      const response = await fetch('/api/notifications/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notification_type: type,
+          enabled: enabled,
+          push_enabled: enabled,
+          email_enabled: false,
+        }),
+      })
 
-      // First try to update existing preference
-      const { data: existingData } = await supabase
-        .from('notification_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('notification_type', type)
-        .single()
+      const data = await response.json()
 
-      let result
-      
-      if (existingData) {
-        // Update existing preference
-        const { data, error } = await supabase
-          .from('notification_preferences')
-          .update({
-            enabled: enabled,
-            push_enabled: enabled,
-            email_enabled: false,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
-          .eq('notification_type', type)
-          .select()
-          .single()
-          
-        result = { data, error }
-      } else {
-        // Insert new preference
-        const { data, error } = await supabase
-          .from('notification_preferences')
-          .insert({
-            user_id: user.id,
-            notification_type: type,
-            enabled: enabled,
-            push_enabled: enabled,
-            email_enabled: false
-          })
-          .select()
-          .single()
-          
-        result = { data, error }
-      }
-
-      if (result.error) {
-        console.error('Database error:', result.error)
-        throw result.error
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update preferences')
       }
 
       setPreferences(prev => ({
         ...prev,
-        [type]: result.data
+        [type]: data.preference
       }))
 
       setSuccess('Preferences updated successfully!')
@@ -271,11 +222,27 @@ export default function NotificationsPage() {
     }
   }
 
+  // Helper function to convert VAPID key
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/')
+
+    const rawData = window.atob(base64)
+    const outputArray = new Uint8Array(rawData.length)
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i)
+    }
+    return outputArray
+  }
+
   if (loading) {
     return (
       <PageWrapper>
-        <Box sx={{ p: 3 }}>
-          <Typography>Loading...</Typography>
+        <Box sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+          <CircularProgress />
         </Box>
       </PageWrapper>
     )
@@ -310,12 +277,12 @@ export default function NotificationsPage() {
             
             {!pushSupported ? (
               <Alert severity="warning">
-                Push notifications are not supported in your browser
+                Push notifications are not supported in your browser. Try using Chrome, Firefox, or Edge.
               </Alert>
             ) : !pushEnabled ? (
               <Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Enable push notifications to receive real-time alerts
+                  Enable push notifications to receive real-time alerts about lab activities
                 </Typography>
                 <Button
                   variant="contained"
@@ -327,26 +294,26 @@ export default function NotificationsPage() {
               </Box>
             ) : (
               <Alert severity="success" icon={<CheckCircle />}>
-                Push notifications are enabled
+                Push notifications are enabled. You can manage specific notifications below.
               </Alert>
             )}
           </CardContent>
         </Card>
 
-        {/* Notification Types */}
+        {/* Notification Categories */}
         <Typography variant="h6" sx={{ mb: 2 }}>
           Notification Types
         </Typography>
 
-        {/* Real-time Notifications */}
+        {/* Activity Notifications */}
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMore />}>
-            <Typography>Real-time Notifications</Typography>
+            <Typography>Activity Notifications</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <FormGroup>
               {notificationTypes
-                .filter(nt => nt.category === 'real-time')
+                .filter(nt => nt.category === 'activity')
                 .map(notif => (
                   <FormControlLabel
                     key={notif.id}
@@ -374,10 +341,10 @@ export default function NotificationsPage() {
           </AccordionDetails>
         </Accordion>
 
-        {/* Scheduled Summaries */}
+        {/* Scheduled Reports */}
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMore />}>
-            <Typography>Scheduled Summaries</Typography>
+            <Typography>Scheduled Reports</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <FormGroup>
@@ -410,15 +377,15 @@ export default function NotificationsPage() {
           </AccordionDetails>
         </Accordion>
 
-        {/* Alerts */}
+        {/* System Notifications */}
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMore />}>
-            <Typography>Alerts & Warnings</Typography>
+            <Typography>System Notifications</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <FormGroup>
               {notificationTypes
-                .filter(nt => nt.category === 'alerts')
+                .filter(nt => nt.category === 'system')
                 .map(notif => (
                   <FormControlLabel
                     key={notif.id}
@@ -453,13 +420,13 @@ export default function NotificationsPage() {
             <Typography variant="subtitle2">About Notifications</Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
-            • Real-time notifications alert you immediately when events occur
+            • Activity notifications alert you about real-time lab events
             <br />
-            • Scheduled summaries provide periodic updates at set intervals
+            • Scheduled reports provide periodic summaries of lab usage
             <br />
-            • You can customize which notifications you receive
+            • System notifications keep you informed about maintenance and updates
             <br />
-            • Notifications require push permissions to be enabled
+            • All notifications require push permissions to be enabled first
           </Typography>
         </Box>
       </Box>
